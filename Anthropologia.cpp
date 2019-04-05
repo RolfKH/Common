@@ -4,6 +4,7 @@
 * @date		06.06.2017
 * @copyright (C)Spiro Medical AS 2013 - 2017
 */
+///
 
 #include "stdafx.h"
 #include "Anthropologia.h"
