@@ -1,0 +1,132 @@
+
+#ifndef REGISTRY_DEFINITIONS_INCLUDED
+#define REGISTRY_DEFINITIONS_INCLUDED
+
+
+/*!
+* @author		RKH
+* @date		06.06.2017
+* @copyright (C)Spiro Medical AS 2013 - 2017
+*/
+
+#define COMPANY_NAME	_T("Spiro Medical")			// Company name. Used as key name.
+#define SOFTWARE_NAME	_T("Software")				// Name on software key
+
+//---For graph visual settings
+#define KEY_FILES							_T("File locations")
+#define AGS_FILE_LOCATION					_T("AGS File location")
+#define AGS_LAST_FOLDER						_T("Last folder")
+#define AGS_LAST_FILE						_T("Last file")
+#define REG_INITIAL							_T("Initial")
+#define REG_INITIAL_FOLDER					_T("Initial folder")
+#define REG_INITIAL_FOLDER_NAME				_T("Initial folder name")
+#define KEY_GRAPHICS						_T("Graphics parameters")
+#define GRAPH_BUTTONS						_T("Graph buttons")
+#define GENERIC_GRAPH_SUBKEY				_T("Generic graphics subkey")
+#define BATTERY_VOLTAGE						_T("Battery voltage")
+#define BATTERY_CAPACITY					_T("Battery capacity")
+#define BATTERY_REMAINING_CAPACITY			_T("Battery remaining capacity")
+#define BATTERY_FULL_CHARGE_CAPACITY		_T("Battery full charge capacity")
+#define BATTERY_TEMPERATURE					_T("Battery temperature")
+#define BATTERY_CURRENT						_T("Battery current")
+#define TISSUE_VIBRATION					_T("Tissue vibration")
+#define BODY_POSITION_XYZ					_T("Body position XYZ")
+#define BODY_POSITION						_T("Body position")
+#define BODY_POSITION_X						_T("Body position X")
+#define BODY_POSITION_Y						_T("Body position Y")
+#define BODY_POSITION_Z						_T("Body position Z")
+#define ACTIMETER							_T("Actimeter")
+#define TORSO_ACTIMETER						_T("Torso actimeter")
+#define AIRBORNE_SOUND						_T("Airborne sound")
+#define AIRBORNE_SOUND_F0					_T("Airborne sound F0")
+#define AIRBORNE_SOUND_F1					_T("Airborne sound F1")
+#define AIRBORNE_SOUND_F2					_T("Airborne sound F2")
+#define AIRBORNE_SOUND_F3					_T("Airborne sound F3")
+#define AIRBORNE_SOUND_F0_PARENT			_T("Airborne sound")
+#define AIRBORNE_SOUND_F1_PARENT			_T("Airborne sound")
+#define AIRBORNE_SOUND_F2_PARENT			_T("Airborne sound")
+#define AIRBORNE_SOUND_F3_PARENT			_T("Airborne sound")
+#define PULSE_RATE							_T("Pulse rate")
+#define SpO2								_T("SpO2")
+#define PRESSURE_OESOPH						_T("POES")
+#define PRESSURE_PPHAR						_T("PPH")
+//#define PRESSURE_UPPER_GRADIENT				_T("Pressure upper gradient")
+//#define PRESSURE_LOWER_GRADIENT				_T("Pressure lower gradient")
+//#define PRESSURE_GRADIENTS					_T("Pressure gradients")
+#define PRESSURE_GRADIENT_RATIO				_T("PPH/POES")
+#define TEMPERATURE_T0						_T("T0")
+#define TEMPERATURE_T1						_T("T1")
+#define TEMPERATURE_T1_RAW					_T("T1 Raw")
+#define TEMPERATURE_T0_RAW					_T("T0 Raw")
+#define AG200MIC							_T("AG200 microphone")
+#define KEY_160HZ							_T("Frequency band 160 Hz")
+#define KEY_400HZ							_T("Frequency band 400 Hz")
+#define KEY_1000HZ							_T("Frequency band 1000 Hz")
+#define KEY_2500HZ							_T("Frequency band 2500 Hz")
+
+#define RESP_FRQ							_T("Respiration frequency")
+#define ADMITTANCE							_T("Admittance")
+#define BREATHING_EFFICIENCY				_T("Breathing Efficiency")
+#define POES_ENV							_T("POES Envelope")
+#define POES_ENV_BASELINE					_T("POES Envelope baseline")
+#define PPH_ENV								_T("PPH Envelope")
+#define PPH_ENV_BASELINE					_T("PPH Envelope baseline")
+#define T0_ENV								_T("T0 Envelope")
+#define T1_ENV								_T("T1 Envelope")
+#define T1_ENV_BASELINE						_T("T1 Envelope baseline")
+#define T0_PLUS_T1							_T("T0 plus T1")
+#define FLOW								_T("Flow")
+#define FLOW_BASELINE						_T("Flow Baseline")
+#define GRAPH_EVENTS						_T("Events")
+#define ABDOM_BELT							_T("Abdominal belt")
+#define CHEST_BELT							_T("Chest belt")
+#define CANNULA								_T("Cannula")
+#define TIME_AXIS_GRAPH                     _T("Time axis");
+#define EVENT_MARKER_GRAPH                  _T("Event marker");
+#define MIXED_MARKER						_T("Mixed marker")
+#define CENTR_MARKER						_T("Central marker")
+#define OBSTR_MARKER						_T("Obstructive marker")
+#define OBHYP_MARKER						_T("Obstructive Hypopnea marker")
+#define CEHYP_MARKER						_T("Central Hypopnea marker")
+#define SPO2__MARKER						_T("SpO2 marker")
+#define RERA__MARKER						_T("RERA marker")
+#define AROUS_MARKER						_T("Arousal marker")
+#define AWAKE_MARKER						_T("Awake marker")
+#define SNORI_MARKER						_T("Snoring marker")
+#define MANUA_MARKER						_T("Manual marker")
+#define SWALL_MARKER						_T("Swallow marker")
+#define IMPOR_MARKER						_T("Imported marker")
+#define EXCLU_MARKER						_T("Excluded marker")
+
+#define ANTHROPOLOGIA						_T("Anthropologia")
+#define OPERATOR							_T("AG Operator")
+#define ATTENDING_DOCTOR					_T("Attending Doctor")
+#define FIRST_NAME							_T("First name")
+#define MIDDLE_NAME							_T("Middle name")
+#define LAST_NAME							_T("Last name")
+#define NOTES								_T("Notes")
+#define EMAIL								_T("Email")
+#define ADDRESS								_T("Address")
+#define TELEPHONE							_T("Telephone")
+#define FUNCTION							_T("Function")
+
+//---Values
+#define BACKGROUND_COLOUR					_T("Background colour")
+#define CURVE_COLOUR						_T("Curve colour")
+#define TRANSPARENCY						_T("Transparency")
+#define THICKNESS							_T("Thickness")
+#define MINIMUM_X							_T("Minimum X")
+#define MINIMUM_Y							_T("Minimum Y")
+#define MAXIMUM_X							_T("Maximum X")
+#define MAXIMUM_Y							_T("Maximum Y")
+#define TICK_X								_T("Tick X")
+#define TICK_Y								_T("Tick Y")
+#define LABEL_INTERVAL_X					_T("Label interval X")
+#define LABEL_INTERVAL_Y					_T("Label interval Y")
+#define TITLE								_T("Title")
+
+//---Misc
+#define SETTINGS							_T("Settings")
+#define USEFUL								_T("Useful")
+			
+#endif

@@ -1,0 +1,32 @@
+//
+// GraphSettings.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+#include "CommonResource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// Add manually edited resources here...
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+IDD_GRAPH_SETTINGS DIALOGEX 0, 0, 309, 176
+STYLE DS_SETFONT | WS_THICKFRAME| DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Graph Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,198,155,50,14
+END
+
+STRINGTABLE
+BEGIN
+  IDS_BACKGROUND_COLOUR                	"Background colour"
+  IDS_CURVE_COLOUR                  	"Curve colour"
+  IDS_CURVE_THICKNESS       		"Curve thickness"
+  IDS_CURVE_TRANSPARENCY		"Curve transparency"
+END
+

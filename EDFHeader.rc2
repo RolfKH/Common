@@ -1,0 +1,55 @@
+//
+// Analysis.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+#include "CommonResource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_EDF_HEADER DIALOGEX 0, 0, 316, 183
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "EDF Header"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+ //   DEFPUSHBUTTON   "OK",IDOK,205,162,50,14
+//  CONTROL         "Custom1",IDC_EDF_HEADER_REPORT,"",WS_TABSTOP,7,7,302,152
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_EDF_VERSION						"Version"
+	IDS_EDF_PATIENTID					"Patient identification"
+    IDS_EDF_RECID						"Record identification"
+    IDS_EDF_STARTTIME					"Start time and date"
+    IDS_EDF_BYTES_IN_HEADER_RECORD		"Number of bytes in header record"
+    IDS_EDF_RESERVED					"Reserved for future use"
+	IDS_EDF_NUM_DATA_RECORDS			"Number of data records"
+	IDS_EDF_DURATION_OF_DATA_RECORD		"Seconds duration of data record"
+	IDS_EDF_NUM_SIGNALS_IN_DATA_RECORD	"Number of signals in data record"
+	IDS_SEC_FORMAT_STRING				"%d Second"
+	IDS_SECS_FORMAT_STRING				"%d Seconds"
+	IDS_SIGNALS							"Signals"
+	IDS_SIGNAL							"Signal"
+	IDS_TRANSDUCER_TYPE					"Transducer type"
+	IDS_PHYSICAL_DIMENSION				"Physical dimension"
+	IDS_PHYSICAL_MINIMUM				"Physical minimum"
+	IDS_PHYSICAL_MAXIMUM				"Physical maximum"
+	IDS_DIGITAL_MINIMUM					"Digital minimum"
+	IDS_DIGITAL_MAXIMUM					"Digital maximum"
+	IDS_PREFILTERING					"Prefiltering"
+	IDS_NUM_SAMPLES_IN_EACH_DATA_RECORD	"Number of samples in each data record"
+	IDS_PROGRESS_READ_EDF_DATA				"Reading EDF data..........."
+END
+

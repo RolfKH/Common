@@ -1,0 +1,31 @@
+//
+// Analysis.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+#include "CommonResource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// Add manually edited resources here...
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MARQUEEPROGRESS_DIALOG DIALOGEX 0, 0, 346, 150
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Progress"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Chunk 5:",IDC_STATIC_PROGRESS_TEXT,162,95,30,8
+    CONTROL         "Progress1",IDC_PROGRESS_HORZ,"msctls_progress32",WS_BORDER,
+                    7,129,247,14
+END
+

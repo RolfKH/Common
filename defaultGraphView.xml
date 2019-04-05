@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Comments
+Page
+  Up to 4 pages available, from 1 to 4
+TimeAxis, start and stop:
+          Start and end of graph in hours:minutes:seconds (hh:mm:ss)
+          Start must be before stop
+          Start of recording is 00:00:00
+Section
+  Up to 10 sections available, from 1 to 10
+  
+Grid: 0: do not use grid
+      1: use grid
+      
+EngineeringUnits
+  TempUnit
+    0: degC/s
+    1: degF/s
+  PressureUnit
+    0: cmH2O
+    1: mmHg
+    2: kPa
+    3: Bar
+
+Channels
+  The following channel tags are legal: 
+		P0
+		P1
+		T0
+		T1
+		SpO2
+		Pulse Rate
+		Body Position XY
+		Body Position Z
+		Contact Sound
+		Airborne Sound
+		P0-P1
+		Arm
+    Impedance
+    Admittance
+    Thoracic Respiration Belt
+    Abdominal Respiration Belt
+    
+Colour
+  In R,G,B (Red: 0-255, Green: 0-255, Blue: 0-255)
+  
+Thickess
+  Line thickness: Integer from 1 to 6
+  
+MinimumY
+  Minimum Y axis in current engineering unit
+  
+MaximumY
+  Maximum Y axis in current engineering unit
+
+Transparency
+	From 0 (%) to 90 (%). 0 is not transparent, 90 is close to invisible
+
+Note that if maximumY is less or equal to minimumY, maximum Y is set to minimumY plus 100 (regardless of the unit selected)
+-->
+<ApneaGraphView version="10.0">
+  <page name="Main Page" enabled ="1">
+    <timeAxis>
+      <start>-01:00:00</start>
+      <stop>06:00:00</stop>
+    </timeAxis>
+    <section name="Catheter Section" enabled ="1">
+      <useGrid>0</useGrid>
+      <engineeringUnits>
+        <tempUnit>0</tempUnit>
+        <pressUnit>0</pressUnit>
+      </engineeringUnits>
+      <channel id="P0" enabled ="1">
+        <color>255,0,0</color>
+        <thickness>2</thickness>
+        <transparency>0</transparency>
+        <minimumY>-10</minimumY>
+        <maximumY>10</maximumY>
+      </channel>
+      <channel id="P1" enabled ="1">
+        <color>0,0,255</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>-10</minimumY>
+        <maximumY>10</maximumY>
+      </channel>
+    </section>
+    <section name="Temp Section" enabled ="1">
+      <useGrid>0</useGrid>
+      <engineeringUnits>
+        <tempUnit>0</tempUnit>
+        <pressUnit>0</pressUnit>
+      </engineeringUnits>
+      <channel id="T0" enabled ="1">
+        <color>0,255,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>-10</minimumY>
+        <maximumY>10</maximumY>
+      </channel>
+      <channel id="T1" enabled ="1">
+        <color>100,100,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>-7</minimumY>
+        <maximumY>8</maximumY>
+      </channel>
+    </section>
+    <section name="Oximetry Section" enabled ="1">
+      <useGrid>0</useGrid>
+      <engineeringUnits>
+        <tempUnit>0</tempUnit>
+        <pressUnit>0</pressUnit>
+      </engineeringUnits>
+      <channel id="SpO2" enabled ="1">
+        <color>0,255,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>60</minimumY>
+        <maximumY>100</maximumY>
+      </channel>
+      <channel id="Pulse Rate" enabled ="1">
+        <color>100,100,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>60</minimumY>
+        <maximumY>120</maximumY>
+      </channel>
+    </section>
+    <section name="Diff Pressure" enabled ="0">
+      <useGrid>0</useGrid>
+      <engineeringUnits>
+        <tempUnit>0</tempUnit>
+        <pressUnit>0</pressUnit>
+      </engineeringUnits>
+      <channel id="P0-P1" enabled ="1">
+        <color>0,255,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>-10</minimumY>
+        <maximumY>10</maximumY>
+      </channel>
+    </section>
+    <section name="Impedance" enabled ="1">
+      <useGrid>0</useGrid>
+      <engineeringUnits>
+        <tempUnit>0</tempUnit>
+        <pressUnit>0</pressUnit>
+      </engineeringUnits>
+      <channel id="Impedance" enabled="1">
+        <color>0,0,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>0</minimumY>
+        <maximumY>10000</maximumY>
+      </channel>
+      <channel id="Admittance" enabled="1">
+        <color>0,255,0</color>
+        <thickness>1</thickness>
+        <transparency>0</transparency>
+        <minimumY>0</minimumY>
+        <maximumY>100</maximumY>
+      </channel>
+    </section>
+  </page>
+</ApneaGraphView>

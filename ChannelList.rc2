@@ -1,0 +1,583 @@
+//
+//
+// Analysis.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+#include "CommonResource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// Add manually edited resources here...
+
+/////////////////////////////////////////////////////////////////////////////
+
+STRINGTABLE
+BEGIN
+  IDS_TIME2                  "Time"
+  IDS_VOLT2                  "Volt"
+  IDS_BATT_VOLT_TITLE2       "Battery voltage"
+  IDS_BATTERY_CAPACITIES2	  "Battery remaining capacity and 
+full charge capacity"
+  IDS_PER_SEC				"/sec"
+  IDS_PER_MIN                    "/min"
+  IDS_mAh2				  "mAh"
+  IDS_BODY_POSITION2XYZ		"Body position x,y,z"
+  IDS_BODY_POSITION3		"Body position"
+  IDS_g2					"g"
+  IDS_BATT_TEMPERATURE2		"Battery temperature"
+  IDS_degC2					"deg C"
+  IDS_CM_TITLE2				"Tissue vibration"
+  IDS_ACTIMETER_TITLE2		"Actimeter"
+  IDS_TORSO_ACTIMETER_TITLE2 "Torso Actimeter"
+  IDS_mg2					"mg"
+  IDS_AIRMIC_TITLE2			"Airborne sound at 160 Hz, 400 Hz, 1 kHz, 2.5 kHz"
+  IDS_PULSE_RATE_TITLE2		"Pulse rate"
+  IDS_BPM2					"BPM"
+  IDS_PERCENT				"%"
+  IDS_SpO2_TITLE2			"Oxygen saturation"
+  IDS_POS					"Position"
+END
+
+STRINGTABLE
+BEGIN
+IDS_BATT_VOLT		"Battery voltage"
+IDS_REMAINING_CAPACITY2	"Remaining battery capacity"
+IDS_FULL_CHARGE_CAPACITY2	"Full charge battery capacity"
+IDS_BATTERY_TEMPERATURE2	"Battery temperature"
+IDS_BATTERY_CURRENT2		"Battery current"
+IDS_AIRBORNE_F0		"Airborne sound at 160 Hz"
+IDS_AIRBORNE_F1		"Airborne sound at 400 Hz"
+IDS_AIRBORNE_F2		"Airborne sound at 1 kHz"
+IDS_AIRBORNE_F3		"Airborne sound at 2.5 kHz"
+IDS_BP_X		"Body position x-axis"
+IDS_BP_Y		"Body position y-axis"
+IDS_BP_Z		"Body position z-axis"
+IDS_P0                  "P0"
+IDS_P1                  "P1"
+IDS_T0                  "T0"
+IDS_T1                  "T1"
+IDS_T1_RAW              "T1 Absolute"
+IDS_T0_RAW              "T0 Absolute"
+IDS_SpO2                "SpO2"
+IDS_PR                  "Pulse Rate"
+IDS_BPos				"Body Position"
+IDS_CONTACT_SOUND       "Tissue vibration"
+IDS_AIRB_SOUND			"Airborne Sound"
+IDS_P0_P1               "P0-P1"
+IDS_T0PLUST1			"T0+T1"
+IDS_ACTIMETER           "Actimeter"
+IDS_EEG                 "EEG"
+IDS_RB_THORACIC         "Thoracic Respiration Belt"
+IDS_RB_ABDOMINAL        "Abdominal Respiration Belt"
+IDS_ADMITTANCE_T0		"Admittance 0"
+IDS_ADMITTANCE_T1		"Admittance 1"
+IDS_ADMITTANCE_T0_TOOLTIP			"Admittance based on P0 and T0"
+IDS_ADMITTANCE_T1_TOOLTIP			"Admittance based on P0 and T1"
+IDS_ADMITTANCE_T0_DESCRIPTION		"Admittance - flow measured by T0 divided by pressure measured by P0"
+IDS_ADMITTANCE_T1_DESCRIPTION		"Admittance - flow measured by T1 divided by pressure measured by P0"
+IDS_CANNULA				"Cannula"
+IDS_RESPIRATION_FRQ		"Respiration effort frequency"
+IDS_RESPIRATION_FRQ_TOOLTIP		"Respiration effort frequency"
+IDS_RESPIRATION_FRQ_DESCRIPTION	"Instantaneous respiration effort frequency, based on the oesophagus pressure"
+IDS_POES_TITLE			"Oesophagus pressure"
+IDS_PPH_TITLE			"Pharynx pressure"
+IDS_PRESS_GRADIENT_TITLE	"PPH/POES"
+IDS_T0_TITLE			"Temperature T0 variation"
+IDS_T1_TITLE			"Temperature T1 variation"
+IDS_T1_TITLE_RAW		"Temperature T1"
+IDS_T0_TITLE_RAW		"Temperature T0"
+IDS_cmH2O			"cmH2O"
+IDS_DEGC_SEC			"degC/s"
+IDS_DEGC				"degC"
+IDS_AG200_MIC_TITLE		"Sound"
+IDS_LEFT2				"Left"
+IDS_RIGHT2		"Right"
+IDS_PRONE2 		"Prone"
+IDS_SUPINE2		"Supine"
+IDS_STANDING2	"Upright"
+IDS_UNDEFINED2	"Undefined"
+IDS_HIDDEN_STRING	"****"
+IDS_TT_HIDDEN_STRING	"Encrypted text"
+IDS_DES_HIDDEN_STRING	"The text is encrypted. It can only be decrypted with the password that was used for encryption."
+IDS_MANUAL_MARKERS		"Number of markers"
+IDS_TT_MANUAL_MARKERS	"The number of manual markers"
+IDS_DES_MANUAL_MARKERS	"The number of manual markers set from the monitor app during acquisition"
+END
+
+STRINGTABLE
+BEGIN
+IDS_AXES                "Axes"
+IDS_CHANNELS            "Channels"
+IDS_MIN_Y               "Minimum Y"
+IDS_MAX_Y               "Maximum Y"
+IDS_DIV_Y               "Y Tick Marks"
+IDS_PRESS_UNIT          "Pressure Unit"
+IDS_TEMP_UNIT           "Temperature Unit"
+IDS_COLOUR              "Colour"
+IDS_THICKNESS           "Thickness"
+IDS_GRAPH_PAGES         "Graph Pages"
+IDS_PAGE				"Page"
+END
+
+STRINGTABLE
+BEGIN
+IDS_PAGE_TOOLTIP					"Graph page definition"
+IDS_PAGE_DESCRIPTION				"Each graph page holds up to 10 plot sections"
+IDS_SECTION_TOOLTIP					"Graph section definition"
+IDS_SECTION_DESCRIPTION				"Each graph section contains channels and Y-axis definition"
+IDS_GRAPH_PAGES_DESCRIPTION			"Up to 4 graph pages are available for use"
+IDS_GRAPH_PAGES_TOOLTIP				"Graph pages"
+IDS_DIV_Y_TOOLTIP					"Distance between Y axis ticks"
+IDS_AXES_TOOLTIP					"Y axis definition"
+IDS_USE_GRID						"Use grid"
+IDS_USE_GRID_TOOLTIP				"Use a grid in the plot section"
+IDS_USE_GRID_DESCRIPTION			"Select in order to draw a grid in the relevant plot section"
+IDS_AXES_DESCRIPTION				"Definition of axes - Y-scale and grid or not"
+IDS_COLOUR_DESCRIPTION				"Colour of the graph"
+IDS_COLOUR_TOOLTIP					"Line colour"
+IDS_THICKNESS_DESCRIPTION			"Thickness (width) of the graph"
+IDS_THICKNESS_TOOLTIP				"Line thickness"
+IDS_TRANSPARENCY_DESCRIPTION		"Full transparency (0 %, left) to no transparency (100 %, right)"
+IDS_TRANSPARENCY_TOOLTIP			"Transparency of the graph"
+IDS_MAXY_DESCRIPTION				"Y-axis maximum"
+IDS_MAXY_TOOLTIP					"Maximum y-axis"
+IDS_MINY_DESCRIPTION				"Y-axis minimum"
+IDS_MINY_TOOLTIP					"Minimum y-axis"
+IDS_YAXIS_PRESS_ADDNOTE				"This will affect both P0 and P1 in the same section (the same plot)"
+IDS_YAXIS_TEMP_ADDNOTE				"This will affect both T0 and T1 in the same section (the same plot)"
+IDS_TIME_START						"Start of graph"
+IDS_TIME_START_DESCRIPTION			"Start of graph from the start of the recording"
+IDS_TIME_START_TOOLTIP				"Start of graph from the start of the recording"
+IDS_TIME_STOP						"End of graph"
+IDS_TIME_STOP_DESCRIPTION			"End of graph from the start of the recording"
+IDS_TIME_STOP_TOOLTIP				"End of graph from the start of the recording"
+IDS_TIME_AXIS_SETTING				"Time axis"
+IDS_TIME_AXIS_SETTING_DESCRIPTION	"Defines the time axis from the start to end - from the start of the recording"
+IDS_TIME_AXIS_SETTING_TOOLTIP		"Time axis from start to end"
+
+
+END
+
+STRINGTABLE
+BEGIN
+IDS_CHANNELS_DESCRIPTION		"Selection of channels to plot - expand the channel item and select data type to show"
+IDS_CHANNELS_TOOLTIP			"Channel selection - expand to select data to show"
+IDS_MIN_Y_DESCRIPTION			"Minimum of the Y axis"
+IDS_MAX_Y_DESCRIPTION			"Maximum of the Y axis"
+IDS_DIV_Y_DESCRIPTION			"Distance between the ticks on the Y axis"
+IDS_PRESS_UNIT_TOOLTIP			"Pressure engineering unit"
+IDS_PRESS_UNIT_DESCRIPTION		"Pressure engineering unit"
+IDS_TEMP_UNIT_TOOLTIP			"Temperature engineering unit"
+IDS_TEMP_UNIT_DESCRIPTION		"Temperature engineering unit"
+IDS_P0_TOOLTIP					"Distal pressure sensor"
+IDS_P0_DESCRIPTION				"Measures the pressure in the oesophagus"
+IDS_P1_TOOLTIP					"Proximal pressure sensor"
+IDS_P1_DESCRIPTION				"Measures the pressure in the pharynx"
+IDS_T0_TOOLTIP					"Distal temperature sensor"
+IDS_T0_DESCRIPTION				"Measures the temperature variation in the upper pharyngeal region - this represents flow"
+IDS_T1_TOOLTIP					"Proximal temperature sensor"
+END
+
+STRINGTABLE
+BEGIN
+IDS_T1_DESCRIPTION				"Measures the temperature variation in the middle/lower pharyngeal region - this represents flow"
+IDS_PR_TOOLTIP					"Pulse rate sensor"
+IDS_PR_DESCRIPTION				"Measures the pulse rate by the pulse oximetry fingertip sensor"
+IDS_SpO2_TOOLTIP				"Pulse oximetry sensor"
+IDS_SpO2_DESCRIPTION			"Measures the oxygen saturation by the pulse oximetry fingertip sensor"
+IDS_CONTACT_SOUND_TOOLTIP		"Snoring sensor"
+IDS_CONTACT_SOUND_DESCRIPTION	"Measures the snoring sound with a contact microphone attached to the neck"
+IDS_AIRB_SOUND_TOOLTIP			"Snoring sensor"
+IDS_AIRB_SOUND_DESCRIPTION		"Measures the airborne snoring sound with a microphone at a distance"
+IDS_BPos_TOOLTIP				"Body position"
+IDS_BPos_DESCRIPTION			"Measures the body position"
+IDS_P0_P1_TOOLTIP				"Difference between distal and proximal pressure signals"
+IDS_P0_P1_DESCRIPTION			"Measures the difference between the oesophagus and pharynx pressures"
+IDS_T0PLUST1_TOOLTIP			"Sum of the two temperature signals"
+IDS_T0PLUST1_DESCRIPTION		"Shows the sum of the two temperature signals"
+IDS_CANNULA_TOOLTIP				"Cannula pressure sensor"
+IDS_CANNULA_DESCRIPTION			"Measures the respiration pressure at the end of the cannula tube"
+IDS_EEG_TOOLTIP					"EEG signal"
+END
+
+STRINGTABLE
+BEGIN
+IDS_EEG_DESCRIPTION				"Measures the EEG signbal to determine arousals"
+IDS_RB_THORACIC_TOOLTIP			"Thoracic respiration belt sensor"
+IDS_RB_ABDOMINAL_TOOLTIP		"Abdominal respiration belt sensor"
+IDS_RB_THORACIC_DESCRIPTION		"Measures thoracic respiration movement"
+IDS_RB_ABDOMINAL_DESCRIPTION	"Measures abdominal respiration movement"
+IDS_TRANSPARENCY				"Transparency"
+IDS_UNITS						"Engineering units"
+IDS_UNITS_TOOLTIP				"Engineering pressure and temperature units"
+IDS_UNITS_DESCRIPTION			"For definition of pressure (cmH2O, mmHg, kPa or Bar) and temperature variation units (degC or degF per second)"
+IDS_PAGE_NAME					"Page name"
+IDS_PAGE_NAME_TOOLTIP			"User defined graph page name"
+IDS_PAGE_NAME_DESCRIPTION		"User defined graph name. Can be edited."
+IDS_SECTION						"Section %d"
+IDS_ACTIMETER_DESCRIPTION		"Measures arm movement"
+IDS_ACTIMETER_TOOLTIP			"Arm actimeter sensor"
+IDS_SECTION_NAME				"Section name"
+IDS_SECTION_NAME_TOOLTIP		"User defined section name"
+IDS_SECTION_NAME_DESCRIPTION	"User defined section name. Can be edited"
+END
+
+STRINGTABLE
+BEGIN
+IDS_SET_GRAPH_DEFAULTS			"Set defaults"
+IDS_SET_G_D_TOOLTIP				"Set the default parameters"
+IDS_READ_G_FROM_FILE			"Import"
+IDS_SAVE_G_TO_FILE				"Export"
+IDS_READ_G_FROM_FILE_TT			"Import the current parameters from a file"
+IDS_SAVE_G_TO_FILE_TT			"Export the current parameters to a file"
+END
+
+STRINGTABLE
+BEGIN
+IDS_UNIT_P_CMH2O				"cmH2O"
+IDS_UNIT_P_MMHG					"mmHg"
+IDS_UNIT_P_kPA					"kPa"
+IDS_UNIT_P_BAR					"Bar"
+IDS_UNIT_T_DEGC_PER_SEC			"degC/s"
+IDS_UNIT_T_DEGF_PER_SEC			"degF/s"
+IDS_UNIT_PR						"/min"
+IDS_UNIT_SaO2					"% O2"
+IDS_UNIT_BPosXY					"Deg"
+IDS_UNIT_BPosZ					"Deg"
+IDS_UNIT_CONTACT_SOUND			"mm"
+IDS_UNIT_AIRB_SOUND				"dB"
+IDS_UNIT_LEG					"m/s"
+IDS_UNIT_ACTIMETER				"m/s"
+IDS_UNIT_EEG					""
+IDS_UNIT_RB						""
+IDS_UNIT_HZ						"Hz"
+END
+
+STRINGTABLE
+BEGIN
+IDS_EDF_HEADER					"EDF Header"
+IDS_EDF_CHANNELS				"EDF Channels"
+IDS_EDF_HEADER_DESCRIPTION		"The header in the European Data Format file - contains key parameters that specifes the recording"
+IDS_EDF_CHANNELS_DESCRIPTION	"The channels in the European Data Format file"
+IDS_EDF_HEADER_TIP				"The EDF header"
+IDS_EDF_CHANNELS_TIP			"The EDF channels"
+IDS_VECTOR_TOTAL_LENGTH			"Total vector length (computed)"
+IDS_MS_SAMP_INTERVAL			"Sample interval (computed)"
+IDS_SAMPLING_FREQUENCY			"Sampling frequency (computed)"
+IDS_GAIN						"Gain (computed)"
+IDS_OFFSET						"Offset (computed)"
+END
+
+STRINGTABLE
+BEGIN
+IDS_DEFAULT_XML_WARNING					"Cannot open file: "
+IDS_ERROR_XML_CREATE_READER				"Error creating xml reader, error is %08.8lx"
+IDS_ERROR_XML_CREATE_WRITER				"Error creating xml writer, error is %08.8lx"
+IDS_ERROR_XML_SETDTDPROC				"Error setting XmlReaderProperty_DtdProcessing, error is %08.8lx"
+IDS_ERROR_XML_SETTING_INPUT_FOR_READER	"Error setting input for reader, error is %08.8lx"
+IDS_ERROR_XML_WRITING_ATTRIBUTES		"Error writing attributes, error is %08.8lx"
+IDS_ERROR_XML_ERROR_GETTING_PREFIX		"Error getting prefix, error is %08.8lx"
+IDS_ERROR_XML_ERROR_GETTING_LOCAL_NAME	"Error getting local name, error is %08.8lx"
+IDS_ERROR_XML_ERROR_WRITING_ATTRIBUTES	"Error writing attributes, error is %08.8lx"
+IDS_ERROR_XML_ERROR_GETTING_VALUE		"Error getting value, error is %08.8lx"
+IDS_ERROR_XML_WRITING_COMMENT			"Error writing comment, error is %08.8lx"
+IDS_ERROR_XML_SETTING_OUTPUT_FOR_WRITER	"Error setting output for writer, error is %08.8lx"
+IDS_ERROR_APN_XML_FILE					"The XML file is not an ApneaGraph View setup file"
+IDS_ERROR_XML_CHANNELID_ERROR			"Channel ID used in XML file is not accepted: "
+END
+
+STRINGTABLE
+BEGIN
+IDS_RAW_XY								"XY Raw data"
+IDS_RAW_EQ_SAMPLE						"Equally sampled raw data"
+IDS_FILTERED							"Filtered data"
+IDS_PEAK_TO_PEAK						"Peak to peak"
+IDS_DERIVATIVE							"Derivative"
+IDS_BASELINE_AVG						"Baseline AVG"
+IDS_BASELINE_MAX						"Baseline MAX"
+
+IDS_RAW_XY_TOOLTIP						"XY Raw data directly from sensor"
+IDS_RAW_EQ_SAMPLE_TOOLTIP				"Equally sampled raw data directly from sensor"
+IDS_FILTERED_TOOLTIP					"Filtered data"
+IDS_PEAK_TO_PEAK_TOOLTIP				"Peak to peak curve"
+IDS_DERIVATIVE_TOOLTIP					"Time derivative"
+IDS_BASELINE_AVG_TOOLTIP				"Baseline based on prior 2 minute average"
+IDS_BASELINE_MAX_TOOLTIP				"Baseline based on prior 2 minute maxima"
+
+IDS_RAW_XY_DESCRIPTION					"XY Raw data directly from sensor. Do not have to be equally sampled. No filtering of sensor signals"
+IDS_RAW_EQ_SAMPLE_DESCRIPTION			"Equally sampled raw data directly from sensor. No filtering of sensor signals"
+IDS_FILTERED_DESCRIPTION				"Filtered data. Band pass filtering of the raw sensor data"
+IDS_PEAK_TO_PEAK_DESCRIPTION			"Peak to peak curve. Difference between positive envelope and negative envelope"
+IDS_DERIVATIVE_DESCRIPTION				"Time derivative of filtered signal"
+IDS_BASELINE_AVG_DESCRIPTION			"Baseline based on prior 2 minute average"
+IDS_BASELINE_MAX_DESCRIPTION			"Baseline based on prior 2 minute maxima"
+
+IDS_NOT_USED							"Not used"
+END
+
+STRINGTABLE
+BEGIN
+IDS_PW_TOO_LONG			"Password is too long (> 16 characters)."
+IDS_ZERO_PW				"Warning: Zero length password means that patient name and address will not be decrypted!"
+IDS_SPACE_IN_PW			"Password contains space(s) - please edit again."
+IDS_TOO_SHORT_PW		"Password is too short - please use minimum %d characters"
+END
+
+STRINGTABLE
+BEGIN
+IDS_RESP_FRQ_TITLE		"Respiration effort frequency"
+IDS_ADMITT				"Admittance"
+IDS_POES_ENV_TITLE		"Oesophagus pressure envelope"
+IDS_PPH_ENV_TITLE		"Pharynx pressure envelope"
+IDS_T0_ENV_TITLE		"T0 Envelope"
+IDS_T1_ENV_TITLE		"T1 Envelope"
+IDS_T0_PLUS_T1_			"T0 plus T1"
+IDS_FLOW_TITLE					"Flow"
+IDS_BREATHING_EFFICIENCY_TITLE	"Respiration Efficiency"
+IDS_HZ					"Hz"
+IDS_ERR_CATH_PAR_SET	"Errors in catheter parameter set - will use defaults for calibration!"
+IDS_VERSION_PROBLEM		"There is a data file version problem"
+IDS_VERSIONS_CONFLICT	"This software version %s is not compatible with data file version %d.%d"
+IDS_ABDOM_TITLE			"Abdominal Respiration Belt"
+IDS_CHEST_TITLE			"Chest respiration belt"
+IDS_CANNULA_TITLE		"Nasal Cannula"
+IDS_TOOLTIP_TEXT		"Tooltip text"
+IDS_DATA				"Data"
+IDS_LEFT_CURSOR_EDGE	"Left cursor edge"
+IDS_RIGHT_CURSOR_EDGE	"Right cursor edge"
+IDS_CURSOR_WINDOW		"Cursor window"
+IDS_POSITION			"position"
+IDS_FROM				"From"
+IDS_TO					"To"
+IDS_LENGTH2				"Length"
+IDS_LENGTH2S			"Length (s)"
+IDS_LEFT_EVENT_EDGE		"Left event edge"
+IDS_RIGHT_EVENT_EDGE	"Right event edge"
+IDS_LEFT_EDGE			"Left edge"
+IDS_RIGHT_EDGE			"Right edge"
+IDS_OVER_EVENT			"Event"
+IDS_MIXED2				"Mixed Apnea"
+IDS_OBSTRUCTIVE2		"Obstructive Apnea"
+IDS_OBSTRUCTIVE3		"Obstructive"
+IDS_HYPOPNEA2			"Hypopnea"
+IDS_CENTRAL2			"Central Apnea"
+IDS_CENTRAL3			"Central"
+IDS_SpO2DROP2			"Desaturation"
+IDS_TYPE2				"Type"
+IDS_UPPER2				"Upper"
+IDS_LOWER2				"Lower"
+IDS_UNDEF2				"Undefined"
+IDS_MULTILEVEL2			"Multilevel"
+IDS_LEVEL2				"Level"
+IDS_CLEAR_EVENT			"Clear the event"
+IDS_UNDEF_TYPE			"Undefined type"
+IDS_TIME_AXIS_LABELS	"Time axis for labels"
+IDS_UPPER_GRAD			"Upper pressure gradient"
+IDS_LOWER_GRAD			"Lower pressure gradient"
+IDS_PPH_POES			"PPH/POES"
+IDS_MODE				"Run mode : "
+IDS_RERA2				"RERA"
+IDS_AROUSAL2			"Arousal"
+IDS_SNORING2			"Snoring"
+IDS_AWAKE2				"Awake"
+IDS_EXCLUDED2			"Excluded"
+IDS_OBSTRHYPOPNEA2		"Obstructive Hypopnea"
+IDS_CENTRALHYPOPNEA2	"Central Hypopnea"
+IDS_TIME_OF_DAY			"Time of day"
+IDS_REFERRING_PHYSICIAN "Referring Physician"
+IDS_MEDICAL_DOCTOR      "Attending Doctor"
+IDS_TT_BMI              "Body Mass Index"
+IDS_DESC_BMI            "Enter body mass index."
+IDS_TT_FIRST_NAME       "First name"
+IDS_DESC_FIRST_NAME     "Enter first name on one line."
+IDS_TT_MIDDLE_NAME      "Middle name"
+IDS_DESC_MIDDLE_NAME    "Enter middle name on one line."
+IDS_TT_LAST_NAME        "Last name"
+IDS_DESC_LAST_NAME      "Enter last name on one line."
+IDS_PATIENT             "Patient"
+IDS_MD                  "Attending Doctor"
+IDS_NECK_CIRC_FORMAT    "%.1f cm"
+IDS_AG_OPERATOR         "ApneaGraph Operator"
+IDS_BIRTH_DATE          "Date of birth"
+IDS_EPWORTH             "ESS"
+
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TT_BIRTH_DATE       "Date of birth (dd/mm/yyyy)"
+    IDS_DESCR_DATE          "Type the date or use the button to the right to use a calendar to pick the date."
+    IDS_TT_EPWORTH          "Score on Epworth Sleepiness Scale "
+    IDS_NOTES2              "Notes (4 lines)"
+    IDS_TT_NOTES            "Notes - 4 lines maximum"
+    IDS_DES_NOTES           "Use Ctrl+RETURN to insert new line. There is space for 4 lines in the PDF report."
+    IDS_FUNCTION            "Function"
+    IDS_TT_FUNCTION         "Position or professional function"
+    IDS_DES_FUNCTION        "Enter position or function on one line. "
+    IDS_EMAIL               "Email"
+    IDS_TT_EMAIL            "Electronic mail address"
+    IDS_DES_EMAIL           "Enter a valid Email address."
+    IDS_TEL                 "Telephone"
+    IDS_TT_TEL              "Contact telephone"
+    IDS_DES_TEL             "Date of referral (dd/mm/yyyy)"
+    IDS_REFERRAL_DATE       "Referral date"
+    //IDS_PATIENT             "Patient"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_TT_REFERRAL_DATE    "Date of referral"
+    IDS_DES_REFERRAL_DATE   "Type the date or use the button to the right to use a calendar to pick the date."
+    IDS_MALE                "Male"
+    IDS_FEMALE              "Female"
+    IDS_TRANSGENDER         "Transgender"
+    IDS_TT_ID               "Patient identification"
+    IDS_DESC_ID             "Enter a one line patient identification (do not use official ID codes)."
+    IDS_DATE_OF_STUDY       "Date of ApneaGraph Spiro study"
+	IDS_TIME_OF_STUDY		"Time of ApneaGraph Spiro study"
+    IDS_SAVE                "Save"
+    IDS_TT_SAVE_FOR_LATER_USE "Save data for later use"
+    IDS_BMI_FORMAT          "%.1f kg/m2"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_DATE_OF_APN_STUDY   "Date of AG200 study"
+	IDS_TIME_OF_APN_STUDY	"Time of AG200 study"
+    IDS_TT_DATE_OF_APN_STUDY "Date of ApneaGraph AG200 study"
+	IDS_TT_TIME_OF_APN_STUDY "Time of ApneaGrapf AG200 study"
+    IDS_DES_DATE_OF_APN_STUDY 
+                          "The date of the ApneaGraph AG200 study. AG200 is the old unit and not the new ApneaGraph Spiro device that was launched in 2015."
+    IDS_SAVE_ANTHROPOLOGICAL_DATA 
+                            "Click the SAVE button to preserve this information. This defines the defaults to be used next time."
+    IDS_ENCRYPTION_PASSWORD "Password for Encryption"
+    IDS_DES_ENCRYPTION_PASSWORD "The password used for encryption of patient information. Use only alpha numeric characters (0-9 and a-Z)."
+    IDS_FIRST_NAME          "First name"
+    IDS_MIDDLE_NAME         "Middle name"
+    IDS_LAST_NAME           "Last name"
+    IDS_TT_ADDRESS          "Address"
+    IDS_DESC_ADDRESS        "Multiline address. Use Ctrl+RETURN to insert new line."
+    IDS_BMI                 "BMI"	
+    IDS_TT_DATE_OF_STUDY    "Date of ApneaGraph Spiro study"
+	IDS_TT_TIME_OF_STUDY	"Time of ApneaGraph Spiro study"
+    IDS_RECORDING_ID        "Recording ID"
+    IDS_TT_RECORDING_ID     "Recording ID entered during clinical setup"
+    IDS_DES_RECORDING_ID    "Recording ID entered during clinical setup."
+    IDS_DES_EPWORTH         "Enter the score on the Epworth Sleepiness Scale."
+    IDS_SAVE_DEFAULTS       "Save as defaults"
+    IDS_LOAD_DEFAULTS       "Load defaults"	
+    IDS_SHOW_PASSWORD       "Show password"
+    IDS_TT_SHOW_PASSWORD    "Check this item in order to show the password"
+    IDS_DES_SHOW_PASSWORD   "Check this item in order to show the password."
+    IDS_SAVE_PASSWORD       "Save password"
+    IDS_TT_SAVE_PASSWORD    "Click this item in order to save the password"
+    IDS_DES_SAVE_PASSWORD   "Click this item in order to save the password for later use."
+    IDS_TT_LOAD_DEFAULTS    "Load default values"
+    IDS_TT_ENCRYPTION_PASSWORD 
+                            "Password to be used for encryption of patient name and identification."
+    IDS_PASSWORD            "Password"
+	IDS_GENDER                     "Gender"
+	IDS_ID				"Patient ID"
+	IDS_NECK_CIRC			"Neck circumference"
+	IDS_TT_NECK_CIRC		"Neck circumference in cm"
+	IDS_DES_NECK_CIRC		"Enter the neck circuference."
+	IDS_MIXED_MARKER			"Mixed apnea"
+	IDS_CENTR_MARKER			"Central apnea"
+	IDS_OBSTR_MARKER			"Obstructive apnea"
+	IDS_OBHYP_MARKER			"Obstructive hypopnea"
+	IDS_CEHYP_MARKER			"Central hypopnea"
+	IDS_SPO2__MARKER			"SpO2 desaturations"
+	IDS_RERA__MARKER			"RERA"
+	IDS_AROUS_MARKER			"Arousals"
+	IDS_AWAKE_MARKER			"Awake"
+	IDS_SNORI_MARKER			"Snoring"
+	IDS_MANUA_MARKER			"Manual"
+	IDS_BASELINE			"Baseline"
+	IDS_COMPUTE_BMI			"Compute BMI"
+	IDS_EVENT2				"An event"
+	IDS_CENTRAL4			"Central"
+	IDS_MIXED4				"Mixed"
+	IDS_OBSTR4				"Obstructive"
+	IDS_OBSTRHYPO4			"Obstructive hypopnea"
+	IDS_CENTRALHYPO4			"Central hypopnea"
+	IDS_SPO24				"Desaturation"
+	IDS_RERA4				"RERA"
+	IDS_AROUSAL4			"Arousal"
+	IDS_AWAKE4				"Awake"
+	IDS_SNORING4			"Snoring"
+	IDS_EXCLUDED4			"Excluded"
+	IDS_EVENT_MARKERS		"Event markers"
+	IDS_TOD					"Time of day"
+	IDS_EVENTSREAD_MESS1	"Trying to read previous results. These were saved with a previous version.\n"
+	IDS_EVENTSREAD_MESS2	"The detection criteria have now changed. Do you want to reanalyse with the new criteria?\n"
+	IDS_EVENTSREAD_MESS3	"If NO, it will not be possible to edit (change) the results by editing events. Respective controls will be disabled.\n"
+	IDS_REC_TIME2			"Rec Time"
+	IDS_AMPLITUDE			"Amplitude"
+	IDS_SWALLOW2			"Swallow"
+	IDS_160_Hz				"160 Hz "
+	IDS_400_Hz				"400 Hz "
+	IDS_1000_Hz				"1   kHz"
+	IDS_2500_Hz				"2.5 kHz"
+	IDS_IMPORTED4			"Imported"
+	IDS_CHANGE_PASSWORD2 	"Change password"
+	IDS_CANNOT_READ_OLD_EVENTS	"Cannot read old results as the format is too old.\n Data will be reanalysed."
+END
+
+STRINGTABLE
+BEGIN
+	IDS_NO_CATHETER				"No catheter unit"
+	IDS_NO_NECK					"No neck unit"
+	IDS_NO_WRIST				"No wrist unit"
+	IDS_NOUNITS_ONLY_SUPINE		"There are no data from a catheter unit, wrist unit or neck unit and the body position is supine for 100% of the time. \nThis could be a 'desk recording'if you left the battery in. \nPlease check the date of the recording!"
+	IDS_NOCATHETER_ONLY_SUPINE  "There are no data from a catheter unit and the body position is supine for 100% of the time. \nThis could be a 'desk recording'if you left the battery in. \nPlease check the date of the recording!"
+	IDS_NOUNITS					"There are no data from a catheter unit, wrist unit or neck unit. \nThis could be a 'desk recording'if you left the battery in. \nPlease check the date of the recording!"
+	IDS_ONLY_SUPINE				"The body position is supine for 100% of the time. \nThis could be a 'desk recording'if you left the battery in with the external units connected. \nPlease check the date of the recording!"
+	IDS_COLLISION2				"Collision"
+END
+
+
+IDD_PW_DIALOG2 DIALOGEX 0, 0, 299, 66
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set the patient identity password"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,200,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,242,45,50,14
+    LTEXT           "New password : ",IDC_STATIC,7,9,128,11
+    LTEXT           "16 characters maximum, 3 characters minimum.",IDC_STATIC,7,22,200,11
+    LTEXT           "Use only alpha numeric characters (0-9 and a-Z).",IDC_STATIC,7,33,205,11
+    CONTROL         "Show password",IDC_SHOW_PW2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,9,64,10
+    EDITTEXT        IDC_EDIT_PW2,147,7,77,14,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Save password",IDC_SAVE_PW2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,230,26,65,10
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "Event"
+    BEGIN
+        MENUITEM "Set as obstructive",          ID_EVENT_SETASOBSTRUCTIVE
+        MENUITEM "Set as central",              ID_EVENT_SETASCENTRAL
+    END
+END
+
+IDR_MENU2 MENU
+BEGIN
+    POPUP "CONTEXT"
+    BEGIN
+        MENUITEM "el 1",                        ID_CONTEXT_EL1
+        MENUITEM "el2",                         ID_CONTEXT_EL2
+        POPUP "el3"
+        BEGIN
+            MENUITEM "el sub 1",                    ID_EL3_ELSUB1
+            MENUITEM "elsub 2",                     ID_EL3_ELSUB2
+        END
+    END
+END
