@@ -26,7 +26,7 @@ extern int WM_NEW_EVENT_LENGTH;
 extern int WM_CHANGE_ONE_EVENT;
 extern int WM_POST_EVENT_VISUAL_EDIT_CHANGE;
 
-extern CDumpLog dmpLog;
+extern CDumpLog *dmpLogP;
 
 /////////////////////////////
 
@@ -3102,7 +3102,7 @@ void CRGLBackground::render(void)
 		CString causeS(szCause);
 		s += _T("Cause : ");
 		s += causeS;
-		dmpLog.dump(s);
+		if (dmpLogP) dmpLogP->dump(s);
 		e->Delete();
 	}
 }
@@ -6195,7 +6195,7 @@ void CGraphButton::OnPaint()
 		CString causeS(szCause);
 		s += _T("Cause : ");
 		s += causeS;
-		dmpLog.dump(s);
+		if (dmpLogP) dmpLogP->dump(s);
 		e->Delete();
 	}
 	EndPaint(&paint);
@@ -6248,7 +6248,7 @@ bool CGraphButton::scaleYAxis(CPoint _pt)
 		CString causeS(szCause);
 		s += _T("Cause : ");
 		s += causeS;
-		dmpLog.dump(s);
+		if (dmpLogP) dmpLogP->dump(s);
 		e->Delete();
 	}
 	return true;

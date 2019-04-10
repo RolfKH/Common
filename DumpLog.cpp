@@ -24,57 +24,56 @@ extern int dumpToLog;
 
 CDumpLog::CDumpLog()
 {
+	fileCanBeUsed = false;
+
 #ifndef IN_I2CCOMM
 	if (!dumpToLog)
 		return;
 	CString heading;
 
 #ifdef IN_AGS_BROWSER
-	heading = _T("Log file for AGS Browser\n");
-	appName = _T("AGSBrowser.exe");
+	heading = _T("<AGSLogFile>\n<Type>Log file for AGS Browser</Type>\n");
+	appName = _T("AGSBrowser.exe\n");
 #else
-	heading = _T("Log file for ApneaGraph Spiro Analysis\n");
+	heading = _T("<AGSLogFile>\n<Type>Log file for ApneaGraph Spiro Analysis</Type>\n");
 	appName = _T("SpiroAnalysis.exe");
 #endif
 
 	m_si.Init();
 
-	wstring TempPath;
-	wchar_t wcharPath[MAX_PATH];
-	if (GetTempPathW(MAX_PATH, wcharPath))
-		TempPath = wcharPath;
-
-	CString folder(TempPath.c_str());
-	WIN32_FIND_DATA FindFileData;
-	int i = 0;
-	HANDLE hFind = NULL;
-	CString s;
-	do {
-
-#ifdef IN_AGS_BROWSER
-		s.Format(_T("AGSBrowserDump%03d.txt"), i++);
-#else
-		s.Format(_T("AGSAnalysisDump%03d.txt"), i++);
-#endif
-
-		fileName = folder;
-		fileName += s;
-		hFind = FindFirstFile(fileName, &FindFileData);
-	} while (INVALID_HANDLE_VALUE != hFind);
-
+	//---Find file path
+	CXTPRegistryManager reg(HKEY_LOCAL_MACHINE);
+	CString s = reg.GetProfileString(regFiles, regProgramDataFolder, _T(""));
+	if (s.IsEmpty()) {
+		fileCanBeUsed = false;
+		return;
+	}
+	fileName = s;
+	fileName += LOG_FILE;
+	
 	CStdioFile f;
 	BOOL OK = f.Open(fileName, CFile::modeCreate | CFile::modeWrite);
 	if (!OK) {
 		CString mess = _T("Could not open file ");
 		mess += fileName;
-		mess += _T(" for writing dump log data");
+		mess += _T(" for writing log data");
 		AfxMessageBox(mess);
+		fileCanBeUsed = false;
 	}
 	else {
+		fileCanBeUsed = TRUE;
+
 		f.WriteString(heading);
+
+		f.WriteString(_T("\t<AppName>"));
+		f.WriteString(appName);
+		f.WriteString(_T("\t</AppName>\n"));
+
+		f.WriteString(_T("\t<SWVersion>"));
 		f.WriteString(getVersionInfo());
+		f.WriteString(_T("\t</SWVersion>\n"));
 		CTime dt = CTime::GetCurrentTime();
-		CString ts = dt.Format(_T("%A, %B %d, %Y %H:%M:%S\n"));
+		CString ts = dt.Format(_T("\t<Time>%A, %B %d, %Y %H:%M:%S</Time>\n"));
 		f.WriteString(ts);
 
 		wchar_t user[256];
@@ -82,45 +81,72 @@ CDumpLog::CDumpLog()
 		GetUserName(user, &len);
 		wstring u1 = user;
 		CString u2(u1.c_str());
-		u2 += _T("\n");
-		f.WriteString(_T("User : "));
+		f.WriteString(_T("\t<User>"));
 		f.WriteString(u2);
+		f.WriteString(_T("\t</User>\n"));
 
 		sysInfo(&f);
 		gAdapterInfo(&f);
 
 		// Device manager info: Windows Management Instrumentation (WMI) 
 		// msdn.microsoft.com/en-us/library/aa390418(v=vs.85).aspx 
-
-		f.WriteString(_T("-------------------------------------------------\n"));
 		f.Close();
 	}
 #endif
 }
 
+CDumpLog::~CDumpLog()
+{
+	dump(_T("</AGSLogFile>\n"));
+}
+
 BOOL CDumpLog::sysInfo(CStdioFile *_f)
 {
-#ifndef IN_I2CCOMM
-	if (m_si.IsUserAdmin()) _f->WriteString(_T("...User is admin\n")); 
-	else _f->WriteString(_T("...User is not admin\n"));
+	if (!fileCanBeUsed) return FALSE;
 
-	if (m_si.IsWindowsNT()) _f->WriteString(_T("...Windows NT\n"));
-	else _f->WriteString(_T("...Not Windows NT\n"));
+#ifndef IN_I2CCOMM
+	_f->WriteString(_T("\t<SystemInfo>\n"));
+	_f->WriteString(_T("\t\t<UserStatus>"));
+	if (m_si.IsUserAdmin()) _f->WriteString(_T("Admin")); 
+	else _f->WriteString(_T("Not admin"));
+	_f->WriteString(_T("</UserStatus>\n"));
+
+	_f->WriteString(_T("\t\t<OperatingSystem>"));
+	if (m_si.IsWindowsNT()) _f->WriteString(_T("Windows NT"));
+	else _f->WriteString(_T("Not Windows NT"));
+	_f->WriteString(_T("</OperatingSystem>\n"));
 
 	CString s;
-	s.Format(_T("...Windows major %d, minor %d, build %d, service pack %d, OS type %s\n"),
+	_f->WriteString(_T("\t\t<OpSystVersion>"));
+	s.Format(_T("Windows major %d, minor %d, build %d, service pack %d, OS type %s"),
 		m_si.GetWinMajor(), m_si.GetWinMinor(), m_si.GetBuildNumber(), m_si.GetServicePack(), m_si.GetOSType());
 	_f->WriteString(s);
-	
-	s.Format(_T("...CPU name      : %s\n"), m_si.GetCPUNameString());
-	_f->WriteString(s);
-	s.Format(_T("...CPU identifier: %s\n"), m_si.GetCPUIdentifier());
-	_f->WriteString(s);
-	s.Format(_T("...CPU speed     : %d\n"), m_si.GetCPUSpeed());
-	_f->WriteString(s);
-	s.Format(_T("...CPU vendor    : %s\n"), m_si.GetCPUVendorIdentifier());
-	_f->WriteString(s);
+	_f->WriteString(_T("</OpSystVersion>\n"));
 
+	_f->WriteString(_T("\t\t<CPUName>"));
+	s.Format(_T("CPU name: %s"), m_si.GetCPUNameString());
+	_f->WriteString(s);
+	_f->WriteString(_T("</CPUName>\n"));
+
+
+	_f->WriteString(_T("\t\t<CPU_ID>"));
+	s.Format(_T("CPU identifier: %s"), m_si.GetCPUIdentifier());
+	_f->WriteString(s);
+	_f->WriteString(_T("</CPU_ID>\n"));
+
+
+	_f->WriteString(_T("\t\t<CPUSpeed>"));
+	s.Format(_T("CPU speed: %d"), m_si.GetCPUSpeed());
+	_f->WriteString(s);
+	_f->WriteString(_T("</CPUSpeed>\n"));
+
+
+	_f->WriteString(_T("\t\t<CPUVendor>"));
+	s.Format(_T("CPU vendor: %s"), m_si.GetCPUVendorIdentifier());
+	_f->WriteString(s);
+	_f->WriteString(_T("</CPUVendor>\n"));
+
+	_f->WriteString(_T("\t</SystemInfo>\n"));
 #endif
 	return TRUE;
 }
@@ -128,6 +154,7 @@ BOOL CDumpLog::sysInfo(CStdioFile *_f)
 BOOL CDumpLog::gAdapterInfo(CStdioFile *_f)
 {
 	EnumerateAdapters(_f);
+	// Don't need this info adapterInfo(_f);
 	return TRUE;
 }
 
@@ -153,10 +180,11 @@ vector <IDXGIAdapter*> CDumpLog::EnumerateAdapters(CStdioFile *_f)
 		pAdapter->GetDesc(&ad);
 		CString s(ad.Description);
 		CString sf;
-		sf.Format(_T("___Graphics adapter %2d : "),i);
+		_f->WriteString(_T("\t<GraphicsAdapter>"));
+		sf.Format(_T("%2d : "),i);
 		sf += s;
-		sf += _T("\n");
 		_f->WriteString(sf);
+		_f->WriteString(_T("</GraphicsAdapter>\n"));
 
 		vAdapters.push_back(pAdapter);
 	}
@@ -184,8 +212,7 @@ BOOL CDumpLog::adapterInfo(CStdioFile *_f)
 		// first entry for the IP address/mask, and gateway, and
 		// the primary and secondary WINS server for each adapter. 
 
-		_f->WriteString(_T("IP Adapter info:\n"));
-		_f->WriteString(_T("********************\n"));
+		_f->WriteString(_T("\t\t<AdapterInfo>\n"));
 
 		PIP_ADAPTER_INFO pAdapterInfo;
 		PIP_ADAPTER_INFO pAdapter = NULL;
@@ -200,7 +227,9 @@ BOOL CDumpLog::adapterInfo(CStdioFile *_f)
 		ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 		pAdapterInfo = (IP_ADAPTER_INFO *)MALLOC(sizeof(IP_ADAPTER_INFO));
 		if (pAdapterInfo == NULL) {
-			_f->WriteString(_T("Error allocating memory needed to call GetAdaptersinfo\n"));
+			_f->WriteString(_T("\t\t<Error>Error allocating memory needed to call GetAdaptersinfo</Error>\n"));
+
+			_f->WriteString(_T("\t\t</AdapterInfo>\n"));
 			return 1;
 		}
 		// Make an initial call to GetAdaptersInfo to get
@@ -209,7 +238,8 @@ BOOL CDumpLog::adapterInfo(CStdioFile *_f)
 			FREE(pAdapterInfo);
 			pAdapterInfo = (IP_ADAPTER_INFO *)MALLOC(ulOutBufLen);
 			if (pAdapterInfo == NULL) {
-				_f->WriteString(_T("Error allocating memory needed to call GetAdaptersinfo\n"));
+				_f->WriteString(_T("\t\t<Error>Error allocating memory needed to call GetAdaptersinfo</Error>\n"));
+				_f->WriteString(_T("\t\t</AdapterInfo>\n"));
 				return 1;
 			}
 		}
@@ -220,16 +250,18 @@ BOOL CDumpLog::adapterInfo(CStdioFile *_f)
 			while (pAdapter) {
 				CString aN(pAdapter->AdapterName);
 				CString aD(pAdapter->Description);
-				s.Format(_T("\tComboIndex: \t%d\n"), pAdapter->ComboIndex);
+
+				_f->WriteString(_T("\t\t\t<Combo>\n"));
+				s.Format(_T("\t\t\t\t<Index>%d</Index>\n"), pAdapter->ComboIndex);
 				_f->WriteString(s);
-				s.Format(_T("\tAdapter Name: \t%s\n"), static_cast<LPCTSTR>(aN));
+				s.Format(_T("\t\t\t\t<Name>%s</Name>\n"), static_cast<LPCTSTR>(aN));
 				_f->WriteString(s);
-				s.Format(_T("\tAdapter Desc: \t%s\n"), static_cast<LPCTSTR>(aD));
+				s.Format(_T("\t\t\t\t<Description>%s</Description>\n"), static_cast<LPCTSTR>(aD));
 				_f->WriteString(s);
-				_f->WriteString(_T("\tAdapter Addr: \t"));
+				_f->WriteString(_T("\t\t\t\t<Address>"));
 				for (i = 0; i < pAdapter->AddressLength; i++) {
 					if (i == (pAdapter->AddressLength - 1)) {
-						s.Format(_T("%.2X\n"), (int)pAdapter->Address[i]);
+						s.Format(_T("%.2X"), (int)pAdapter->Address[i]);
 						_f->WriteString(s);
 					}
 					else {
@@ -237,148 +269,149 @@ BOOL CDumpLog::adapterInfo(CStdioFile *_f)
 						_f->WriteString(s);
 					}
 				}
-				s.Format(_T("\tIndex: \t%d\n"), pAdapter->Index);
+				_f->WriteString(_T("</Address>\n"));
+				s.Format(_T("\t\t\t\t<Index>%d</Index>\n"), pAdapter->Index);
 				_f->WriteString(s);
-				_f->WriteString(_T("\tType: \t"));
+				_f->WriteString(_T("\t\t\t\t<Type>"));
 				switch (pAdapter->Type) {
 				case MIB_IF_TYPE_OTHER:
-					_f->WriteString(_T("Other\n"));
+					_f->WriteString(_T("Other"));
 					break;
 				case MIB_IF_TYPE_ETHERNET:
-					_f->WriteString(_T("Ethernet\n"));
+					_f->WriteString(_T("Ethernet"));
 					break;
 				case MIB_IF_TYPE_TOKENRING:
-					_f->WriteString(_T("Token Ring\n"));
+					_f->WriteString(_T("Token Ring"));
 					break;
 				case MIB_IF_TYPE_FDDI:
-					_f->WriteString(_T("FDDI\n"));
+					_f->WriteString(_T("FDDI"));
 					break;
 				case MIB_IF_TYPE_PPP:
-					_f->WriteString(_T("PPP\n"));
+					_f->WriteString(_T("PPP"));
 					break;
 				case MIB_IF_TYPE_LOOPBACK:
-					_f->WriteString(_T("Lookback\n"));
+					_f->WriteString(_T("Loopback"));
 					break;
 				case MIB_IF_TYPE_SLIP:
-					_f->WriteString(_T("Slip\n"));
+					_f->WriteString(_T("Slip"));
 					break;
 				default:
-					s.Format(_T("Unknown type %ld\n"), pAdapter->Type);
+					s.Format(_T("Unknown type %ld"), pAdapter->Type);
 					_f->WriteString(s);
 					break;
 				}
+				_f->WriteString(_T("</Type>\n"));
 
 				CString aIIS(pAdapter->IpAddressList.IpAddress.String);
 				CString aIIMS(pAdapter->IpAddressList.IpMask.String);
 				CString GIS(pAdapter->GatewayList.IpAddress.String);
-				s.Format(_T("\tIP Address: \t%s\n"), static_cast<LPCTSTR>(aIIS));
+				s.Format(_T("\t\t\t\t<IPAddress>%s</IPAddress>\n"), static_cast<LPCTSTR>(aIIS));
 				_f->WriteString(s);
-				s.Format(_T("\tIP Mask: \t%s\n"), static_cast<LPCTSTR>(aIIMS));
+				s.Format(_T("\t\t\t\t<IPMask>%s</IPMask>\n"), static_cast<LPCTSTR>(aIIMS));
 				_f->WriteString(s);
-				s.Format(_T("\tGateway: \t%s\n"), static_cast<LPCTSTR>(GIS));
+				s.Format(_T("\t\t\t\t<Gateway>%s</Gateway>\n"), static_cast<LPCTSTR>(GIS));
 				_f->WriteString(s);
-				_f->WriteString(_T("\t***\n"));
 
 				if (pAdapter->DhcpEnabled) {
-					_f->WriteString(_T("\tDHCP Enabled: Yes\n"));
+					_f->WriteString(_T("\t\t\t\t<DHCPEnabled>Yes</DHCPEnabled>\n"));
 					CString s1(pAdapter->DhcpServer.IpAddress.String);
-					s.Format(_T("\t  DHCP Server: \t%s\n"), static_cast<LPCTSTR>(s1));
+					s.Format(_T("\t\t\t\t<DHCPServer>%s</DHCPServer>\n"), static_cast<LPCTSTR>(s1));
 					_f->WriteString(s);
-					_f->WriteString(_T("\t  Lease Obtained: "));
+					_f->WriteString(_T("\t\t\t\t<LeaseObtained>"));
 					/* Display local time */
 					error = _localtime32_s(&newtime, (__time32_t*)&pAdapter->LeaseObtained);
 					if (error)
-						_f->WriteString(_T("Invalid Argument to _localtime32_s\n"));
+						_f->WriteString(_T("Invalid Argument to _localtime32_s"));
 					else {
 						// Convert to an ASCII representation 
 						error = asctime_s(buffer, 32, &newtime);
 						if (error)
-							_f->WriteString(_T("Invalid Argument to asctime_s\n"));
+							_f->WriteString(_T("Invalid Argument to asctime_s"));
 						else {
 							/* asctime_s returns the string terminated by \n\0 */
 							CString b1(buffer);
 							s.Format(_T("%s"), static_cast<LPCTSTR>(b1));
+							s.Remove('\n');
 							_f->WriteString(s);
 						}
 					}
+					_f->WriteString(_T("</LeaseObtained>\n"));
 
-					_f->WriteString(_T("\t  Lease Expires:  "));
+					_f->WriteString(_T("\t\t\t\t<LeaseExpires>"));
 					error = _localtime32_s(&newtime, (__time32_t*)&pAdapter->LeaseExpires);
 					if (error)
-						_f->WriteString(_T("Invalid Argument to _localtime32_s\n"));
+						_f->WriteString(_T("Invalid Argument to _localtime32_s"));
 					else {
 						// Convert to an ASCII representation 
 						error = asctime_s(buffer, 32, &newtime);
 						if (error)
-							_f->WriteString(_T("Invalid Argument to asctime_s\n"));
+							_f->WriteString(_T("Invalid Argument to asctime_s"));
 						else {
 							/* asctime_s returns the string terminated by \n\0 */
 							CString b1(buffer);
 							s.Format(_T("%s"), static_cast<LPCTSTR>(b1));
+							s.Remove('\n');
 							_f->WriteString(s);
 						}
 					}
+					_f->WriteString(_T("</LeaseExpires>\n"));
 				}
 				else
-					_f->WriteString(_T("\tDHCP Enabled: No\n"));
+					_f->WriteString(_T("\t\t\t\t<DHCPEnabled>No</DHCPEnabled>\n"));
 
 				if (pAdapter->HaveWins) {
-					_f->WriteString(_T("\tHave Wins: Yes\n"));
+					_f->WriteString(_T("\t\t\t\t<HaveWins>Yes</HaveWins>\n"));
 					CString s1(pAdapter->PrimaryWinsServer.IpAddress.String);
 					CString s2(pAdapter->SecondaryWinsServer.IpAddress.String);
-					s.Format(_T("\t  Primary Wins Server:    %s\n"), static_cast<LPCTSTR>(s1));
+					s.Format(_T("\t\t\t\t<PrimaryWinsServer>%s</PrimaryWinsServer>\n"), static_cast<LPCTSTR>(s1));
 					_f->WriteString(s);
-					s.Format(_T("\t  Secondary Wins Server:  %s\n"), static_cast<LPCTSTR>(s2));
+					s.Format(_T("\t\t\t\t</SecondaryWinsServer>%s</SecondaryWinsServer>\n"), static_cast<LPCTSTR>(s2));
 					_f->WriteString(s);
 				}
 				else
-					_f->WriteString(_T("\tHave Wins: No\n"));
+					_f->WriteString(_T("\t\t\t\t<HaveWins>No</HaveWins>\n"));
 				pAdapter = pAdapter->Next;
-				_f->WriteString(_T("\n"));
+				_f->WriteString(_T("\t\t\t</Combo>\n"));
 			}
 		}
 		else {
 			CString s;
-			s.Format(_T("GetAdaptersInfo failed with error: %d\n"), dwRetVal);
+			s.Format(_T("\t\t\t</Error>GetAdaptersInfo failed with error: %d</Error>\n"), dwRetVal);
 			_f->WriteString(s);
 		}
 		if (pAdapterInfo)
 			FREE(pAdapterInfo);
 
-		_f->WriteString(_T("********************\n"));
+		_f->WriteString(_T("\t\t</AdapterInfo>\n"));
 #endif
 		return 0;
 }
 
 CString CDumpLog::getFileName(void)
 {
+	if (!fileCanBeUsed) return _T("cannot use dumpFile");
+
 	return fileName;
 }
 
 void CDumpLog::dump(CString _s)
 {
-#ifndef IN_I2CCOMM
-	if (!dumpToLog) 
-		return;
-	if (fileName.IsEmpty())
-		return;
+	if (!fileCanBeUsed) return;
 
+#ifndef IN_I2CCOMM
 	CStdioFile f;
 	BOOL OK = f.Open(fileName, CFile::modeWrite | CFile::modeNoTruncate);
-	if (!OK) {
-		CString mess = _T("Could write to file ");
-		mess += fileName;
-		mess += _T(" for writing dump log data");
-		AfxMessageBox(mess);
-	}
-	else {
+	if (OK) {
 		f.Seek(0, CFile::end);
-		CString s = _s;
-		s += _T("\n");
-		f.WriteString(s);
+		f.WriteString(_s);
 		f.Close();
 	}
 #endif
+}
+
+bool CDumpLog::canDmpLogFileBeUsed(void)
+{
+	return fileCanBeUsed;
 }
 
 CString CDumpLog::getVersionInfo(void)
@@ -465,7 +498,6 @@ CString CDumpLog::getVersionInfo(void)
 				vstr += bs;
 				vstr += _T("  ");
 				vstr += buildDate;
-				vstr += _T("\n");
 			}
 		}
 		free(pBlock);

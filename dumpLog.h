@@ -13,12 +13,15 @@
 
 using namespace std;
 
+#define LOG_FILE	_T("Logfile.xml")
 
 class CDumpLog
 {
 public: 
 	CDumpLog();
+	~CDumpLog();
 	void dump(CString _s);
+	bool canDmpLogFileBeUsed(void);
 	CString getFileName();
 protected:
 
@@ -33,4 +36,5 @@ protected:
 	vector <IDXGIAdapter*> EnumerateAdapters(CStdioFile *_f);
 	CString getVersionInfo(void);
 	CString appName;
+	bool fileCanBeUsed;
 };
