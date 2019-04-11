@@ -3466,6 +3466,7 @@ float CGraphBtnSingleMic::getYAutoMax(void)
 CGraphBtnRespFrq::CGraphBtnRespFrq()
 {
 	dataSet = NULL;
+	respBeltDataSet = NULL;
 	regSubKey = RESP_FRQ;
 	curveRespFrq = NULL;
 	int nums = title.LoadString(IDS_RESP_FRQ_TITLE);
@@ -3524,6 +3525,13 @@ void CGraphBtnRespFrq::setData(CCatheterDataSet *_dataSet)
 	dataSet = _dataSet;
 	ASSERT(dataSet);
 	setData(dataSet->getRespFrqVector(),dataSet->getRespFrqVectorTime());
+}
+
+void CGraphBtnRespFrq::setData(CRespBeltDataSet* _dataSet)
+{
+	respBeltDataSet = _dataSet;
+	ASSERT(respBeltDataSet);
+	setData(respBeltDataSet->getRespFrqVector(), respBeltDataSet->getRespFrqVectorTime());
 }
 
 void CGraphBtnRespFrq::setData(vector <FLOAT> *_frq,vector <FLOAT> *_tv)
@@ -3588,6 +3596,7 @@ float CGraphBtnRespFrq::getYAutoMax(void)
 CGraphBtnAdmittance::CGraphBtnAdmittance()
 {
 	dataSet = NULL;
+	respBeltDataSet = NULL;
 	regSubKey = ADMITTANCE;
 	curveAdmittance = NULL;
 	int nums = title.LoadString(IDS_ADMITT);
@@ -3642,6 +3651,13 @@ void CGraphBtnAdmittance::setData(CCatheterDataSet *_dataSet)
 	setData(dataSet->getAdmittanceVector(),dataSet->getAdmittanceVectorTime());
 }
 
+void CGraphBtnAdmittance::setData(CRespBeltDataSet* _dataSet)
+{
+	respBeltDataSet = _dataSet;
+	ASSERT(respBeltDataSet);
+	setData(respBeltDataSet->getRespFrqVector(), respBeltDataSet->getRespFrqVectorTime());
+}
+
 void CGraphBtnAdmittance::setData(vector <FLOAT> *_adm,vector <FLOAT> *_tv)
 {
 	ASSERT(curveAdmittance);
@@ -3683,10 +3699,16 @@ void CGraphBtnAdmittance::createCurveSettings(CButtonPlotSettings *_plotSettings
 float CGraphBtnAdmittance::getYAutoMax(void)
 {
 	FLOAT max;
-	ASSERT(dataSet);
 
-	max = 10.0f * dataSet->getMedian(dataSet->getAdmittanceVector()->begin(), dataSet->getAdmittanceVector()->end());
-	max = max <= .0f ? 1.0f : max;
+	if (dataSet) {
+		max = 10.0f * dataSet->getMedian(dataSet->getAdmittanceVector()->begin(), dataSet->getAdmittanceVector()->end());
+		max = max <= .0f ? 1.0f : max;
+	}
+	else if (respBeltDataSet) {
+		max = 10.0f * respBeltDataSet->getMedian(respBeltDataSet->getAdmittanceVector()->begin(), respBeltDataSet->getAdmittanceVector()->end());
+		max = max <= .0f ? 1.0f : max;
+	}
+	else max = 1.0f;
 
 	return max; 
 }
@@ -4929,6 +4951,128 @@ float CGraphBtnAbdominalBelt::getYAutoMax(void)
 	return getMaxYScaleFromMeanAndMax(avg,pos > neg ? pos : neg);
 }
 
+//////////////////////////////////////////////
+
+CGraphBtnBeltSum::CGraphBtnBeltSum()
+{
+	dataSet = NULL;
+	regSubKey = BELT_SUM;
+	curveA = NULL;
+	int nums = title.LoadString(IDS_BELT_SUM_TITLE);
+
+	dualPolarity = false;
+}
+
+BEGIN_MESSAGE_MAP(CGraphBtnBeltSum, CGraphBtnBelt)
+	ON_WM_NCHITTEST()
+END_MESSAGE_MAP()
+
+
+LRESULT CGraphBtnBeltSum::OnNcHitTest(CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	return CGraphBtnBelt::OnNcHitTest(point);
+}
+
+CGraphBtnBeltSum::~CGraphBtnBeltSum()
+{
+}
+
+void CGraphBtnBeltSum::updateGraphSettings(void)
+{
+	CGraphBtnBelt::updateGraphSettings();
+
+	//---Additionals here
+	CButtonPlotSettings plotSettings(dualPolarity, regSubKey);
+	curveA->setColour(plotSettings.getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
+	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
+
+	render();
+}
+
+void CGraphBtnBeltSum::setEventsToShow(UINT _evToShow, bool _onlyShowEvents /*= false*/)
+{
+	drawOnlyEvents = _onlyShowEvents;
+	eventsToShow = _evToShow;
+	curveA->setEventsToShow(_evToShow);
+	InvalidateRect(NULL, TRUE);
+	UpdateWindow();
+}
+
+/*
+Description: Check for data
+Returns: true if data are present, false if not
+*/
+bool CGraphBtnBeltSum::getHasData(void)
+{
+	if (!dataSet) return false;
+	return dataSet->getSize() ? true : false;
+}
+
+void CGraphBtnBeltSum::setData(CRespBeltDataSet* _dataSet)
+{
+	dataSet = _dataSet;
+	ASSERT(dataSet);
+	setData(dataSet->getBeltSumVector(), dataSet->getBeltSumVectorTime());
+}
+
+void CGraphBtnBeltSum::setData(vector <FLOAT>* _t, vector <FLOAT>* _tv)
+{
+	ASSERT(curveA);
+	curveA->setData(_t, _tv);
+}
+
+void CGraphBtnBeltSum::setEvents(CEvents* _eP)
+{
+	eventsP = _eP;
+
+	ASSERT(curveA);
+	curveA->setEvents(_eP);
+}
+
+void CGraphBtnBeltSum::createCurveSettings(CButtonPlotSettings* _plotSettings)
+{
+	curveA = new CRGLGraphSparse(BELT_SUM);
+
+	ASSERT(curveA);
+
+	_plotSettings->setCurveTitle(regSubKey, title);
+
+	curveA->setTile(plotTile);
+	curveA->setThickness(_plotSettings->getCurveThickness(regSubKey));
+
+	addLayer(curveA);
+	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
+	curveA->setShow(true);
+
+	CRGLText* graphTexts = new CRGLText();
+	graphTexts->setTile(plotTile);
+
+	CString ys;
+	int nums = ys.LoadString(IDS_DEGC_SEC);
+	graphTexts->setTexts(timeAxisLabel, _T(""), ys, title);
+	addLayer(graphTexts);
+}
+
+float CGraphBtnBeltSum::getYAutoMax(void)
+{
+	ASSERT(dataSet);
+
+	FLOAT max = dataSet->getBeltSumVector()->size() > 0 ?
+		*max_element(dataSet->getBeltSumVector()->begin(), dataSet->getBeltSumVector()->end()) : .0f;
+	FLOAT min = dataSet->getBeltSumVector()->size() > 0 ?
+		*min_element(dataSet->getBeltSumVector()->begin(), dataSet->getBeltSumVector()->end()) : .0f;
+	FLOAT avg = dataSet->getBeltSumVector()->size() > 0 ?
+		(float)for_each(dataSet->getBeltSumVector()->begin(), dataSet->getBeltSumVector()->end(), Average()) : .0f;
+
+	FLOAT pos = fabs(max);
+	FLOAT neg = fabs(min);
+	return getMaxYScaleFromMeanAndMax(avg, pos > neg ? pos : neg);
+}
+
 ///////////////////////////////////////////////////////////////////////
 	
 CGraphBtnCannula::CGraphBtnCannula()
@@ -5790,6 +5934,12 @@ void CGraphBtnBreathingEfficiency::setData(vector<FLOAT>* _adm, vector<FLOAT>* _
 
 CGraphBtnChestBeltEnv::CGraphBtnChestBeltEnv()
 {
+	dataSet = NULL;
+	regSubKey = CHEST_BELT;
+	curveA = NULL;
+	int nums = title.LoadString(IDS_CHEST_BELT_ENV_TITLE);
+
+	dualPolarity = false;
 }
 
 BEGIN_MESSAGE_MAP(CGraphBtnChestBeltEnv, CGraphBtnBelt)
@@ -5810,42 +5960,104 @@ CGraphBtnChestBeltEnv::~CGraphBtnChestBeltEnv()
 
 void CGraphBtnChestBeltEnv::updateGraphSettings(void)
 {
+	CGraphBtnBelt::updateGraphSettings();
+
+	//---Additionals here
+	CButtonPlotSettings plotSettings(dualPolarity, regSubKey);
+	curveA->setColour(plotSettings.getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
+	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
+
+	render();
 }
 
 float CGraphBtnChestBeltEnv::getYAutoMax(void)
 {
-	return 0.0f;
+	ASSERT(dataSet);
+
+	FLOAT max = dataSet->getChestEnvVector()->size() > 0 ?
+		*max_element(dataSet->getChestEnvVector()->begin(), dataSet->getChestEnvVector()->end()) : .0f;
+	FLOAT min = dataSet->getChestEnvVector()->size() > 0 ?
+		*min_element(dataSet->getChestEnvVector()->begin(), dataSet->getChestEnvVector()->end()) : .0f;
+	FLOAT avg = dataSet->getChestEnvVector()->size() > 0 ?
+		(float)for_each(dataSet->getChestEnvVector()->begin(), dataSet->getChestEnvVector()->end(), Average()) : .0f;
+
+	FLOAT pos = fabs(max);
+	FLOAT neg = fabs(min);
+	return getMaxYScaleFromMeanAndMax(avg, pos > neg ? pos : neg);
 }
 
 void CGraphBtnChestBeltEnv::setData(CRespBeltDataSet * _dataSet)
 {
+	dataSet = _dataSet;
+	ASSERT(dataSet);
+	setData(dataSet->getChestEnvVector(), dataSet->getChestEnvVectorTime());
 }
 
 void CGraphBtnChestBeltEnv::setEvents(CEvents * _eP)
 {
+	eventsP = _eP;
+
+	ASSERT(curveA);
+	curveA->setEvents(_eP);
 }
 
 bool CGraphBtnChestBeltEnv::getHasData(void)
 {
-	return false;
+	if (!dataSet) return false;
+	return dataSet->getSize() ? true : false;
 }
 
 void CGraphBtnChestBeltEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEvents)
 {
+	drawOnlyEvents = _onlyShowEvents;
+	eventsToShow = _evToShow;
+	curveA->setEventsToShow(_evToShow);
+	InvalidateRect(NULL, TRUE);
+	UpdateWindow();
 }
 
 void CGraphBtnChestBeltEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
 {
+	ASSERT(curveA);
+	curveA->setData(_p, _tv);
 }
 
 void CGraphBtnChestBeltEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
+	curveA = new CRGLGraphSparse(BELT_SUM);
+
+	ASSERT(curveA);
+
+	_plotSettings->setCurveTitle(regSubKey, title);
+
+	curveA->setTile(plotTile);
+	curveA->setThickness(_plotSettings->getCurveThickness(regSubKey));
+
+	addLayer(curveA);
+	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
+	curveA->setShow(true);
+
+	CRGLText* graphTexts = new CRGLText();
+	graphTexts->setTile(plotTile);
+
+	CString ys;
+	int nums = ys.LoadString(IDS_DEGC_SEC);
+	graphTexts->setTexts(timeAxisLabel, _T(""), ys, title);
+	addLayer(graphTexts);
 }
 
 ///////////////////////////////////////////////////////////
 
 CGraphBtnAbdominalBeltEnv::CGraphBtnAbdominalBeltEnv()
 {
+	dataSet = NULL;
+	regSubKey = ABDOM_BELT;
+	curveA = NULL;
+	int nums = title.LoadString(IDS_ABD_BELT_ENV_TITLE);
+
+	dualPolarity = false;
 }
 
 BEGIN_MESSAGE_MAP(CGraphBtnAbdominalBeltEnv, CGraphBtnBelt)
@@ -5866,42 +6078,104 @@ CGraphBtnAbdominalBeltEnv::~CGraphBtnAbdominalBeltEnv()
 
 void CGraphBtnAbdominalBeltEnv::updateGraphSettings(void)
 {
+	CGraphBtnBelt::updateGraphSettings();
+
+	//---Additionals here
+	CButtonPlotSettings plotSettings(dualPolarity, regSubKey);
+	curveA->setColour(plotSettings.getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
+	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
+
+	render();
 }
 
 float CGraphBtnAbdominalBeltEnv::getYAutoMax(void)
 {
-	return 0.0f;
+	ASSERT(dataSet);
+
+	FLOAT max = dataSet->getAbdomEnvVector()->size() > 0 ?
+		*max_element(dataSet->getAbdomEnvVector()->begin(), dataSet->getAbdomEnvVector()->end()) : .0f;
+	FLOAT min = dataSet->getAbdomEnvVector()->size() > 0 ?
+		*min_element(dataSet->getAbdomEnvVector()->begin(), dataSet->getAbdomEnvVector()->end()) : .0f;
+	FLOAT avg = dataSet->getAbdomEnvVector()->size() > 0 ?
+		(float)for_each(dataSet->getAbdomEnvVector()->begin(), dataSet->getAbdomEnvVector()->end(), Average()) : .0f;
+
+	FLOAT pos = fabs(max);
+	FLOAT neg = fabs(min);
+	return getMaxYScaleFromMeanAndMax(avg, pos > neg ? pos : neg);
 }
 
 void CGraphBtnAbdominalBeltEnv::setData(CRespBeltDataSet * _dataSet)
 {
+	dataSet = _dataSet;
+	ASSERT(dataSet);
+	setData(dataSet->getAbdomEnvVector(), dataSet->getAbdomEnvVectorTime());
 }
 
 void CGraphBtnAbdominalBeltEnv::setEvents(CEvents * _eP)
 {
+	eventsP = _eP;
+
+	ASSERT(curveA);
+	curveA->setEvents(_eP);
 }
 
 bool CGraphBtnAbdominalBeltEnv::getHasData(void)
 {
-	return false;
+	if (!dataSet) return false;
+	return dataSet->getSize() ? true : false;
 }
 
 void CGraphBtnAbdominalBeltEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEvents)
 {
+	drawOnlyEvents = _onlyShowEvents;
+	eventsToShow = _evToShow;
+	curveA->setEventsToShow(_evToShow);
+	InvalidateRect(NULL, TRUE);
+	UpdateWindow();
 }
 
 void CGraphBtnAbdominalBeltEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
 {
+	ASSERT(curveA);
+	curveA->setData(_p, _tv);
 }
 
 void CGraphBtnAbdominalBeltEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
+	curveA = new CRGLGraphSparse(BELT_SUM);
+
+	ASSERT(curveA);
+
+	_plotSettings->setCurveTitle(regSubKey, title);
+
+	curveA->setTile(plotTile);
+	curveA->setThickness(_plotSettings->getCurveThickness(regSubKey));
+
+	addLayer(curveA);
+	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
+	curveA->setShow(true);
+
+	CRGLText* graphTexts = new CRGLText();
+	graphTexts->setTile(plotTile);
+
+	CString ys;
+	int nums = ys.LoadString(IDS_DEGC_SEC);
+	graphTexts->setTexts(timeAxisLabel, _T(""), ys, title);
+	addLayer(graphTexts);
 }
 
 ////////////////////////////////////////////////////////////
 
 CGraphBtnCannulaEnv::CGraphBtnCannulaEnv()
 {
+	dataSet = NULL;
+	regSubKey = ABDOM_BELT;
+	curveA = NULL;
+	int nums = title.LoadString(IDS_CANNULA_ENV_TITLE);
+
+	dualPolarity = false;
 }
 
 CGraphBtnCannulaEnv::~CGraphBtnCannulaEnv()
@@ -5922,28 +6196,61 @@ LRESULT CGraphBtnCannulaEnv::OnNcHitTest(CPoint point)
 
 void CGraphBtnCannulaEnv::updateGraphSettings(void)
 {
+	CGraphBtnCannula::updateGraphSettings();
+
+	//---Additionals here
+	CButtonPlotSettings plotSettings(dualPolarity, regSubKey);
+	curveA->setColour(plotSettings.getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
+	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
+
+	render();
 }
 
 float CGraphBtnCannulaEnv::getYAutoMax(void)
 {
-	return 0.0f;
+	ASSERT(dataSet);
+
+	FLOAT max = dataSet->getCannulaEnvVector()->size() > 0 ?
+		*max_element(dataSet->getCannulaEnvVector()->begin(), dataSet->getCannulaEnvVector()->end()) : .0f;
+	FLOAT min = dataSet->getCannulaEnvVector()->size() > 0 ?
+		*min_element(dataSet->getCannulaEnvVector()->begin(), dataSet->getCannulaEnvVector()->end()) : .0f;
+	FLOAT avg = dataSet->getCannulaEnvVector()->size() > 0 ?
+		(float)for_each(dataSet->getCannulaEnvVector()->begin(), dataSet->getCannulaEnvVector()->end(), Average()) : .0f;
+
+	FLOAT pos = fabs(max);
+	FLOAT neg = fabs(min);
+	return getMaxYScaleFromMeanAndMax(avg, pos > neg ? pos : neg);
 }
 
 void CGraphBtnCannulaEnv::setData(CRespBeltDataSet * _dataSet)
 {
+	dataSet = _dataSet;
+	ASSERT(dataSet);
+	setData(dataSet->getCannulaEnvVector(), dataSet->getCannulaEnvVectorTime());
 }
 
 void CGraphBtnCannulaEnv::setEvents(CEvents * _eP)
 {
+	eventsP = _eP;
+
+	ASSERT(curveA);
+	curveA->setEvents(_eP);
 }
 
 bool CGraphBtnCannulaEnv::getHasData(void)
 {
-	return false;
+	if (!dataSet) return false;
+	return dataSet->getSize() ? true : false;
 }
 
 void CGraphBtnCannulaEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEvents)
 {
+	drawOnlyEvents = _onlyShowEvents;
+	eventsToShow = _evToShow;
+	curveA->setEventsToShow(_evToShow);
+	InvalidateRect(NULL, TRUE);
+	UpdateWindow();
 }
 
 CString CGraphBtnCannulaEnv::getTimeAndAmplAt(LONG _x, LONG _y)
@@ -5953,8 +6260,31 @@ CString CGraphBtnCannulaEnv::getTimeAndAmplAt(LONG _x, LONG _y)
 
 void CGraphBtnCannulaEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
 {
+	ASSERT(curveA);
+	curveA->setData(_p, _tv);
 }
 
 void CGraphBtnCannulaEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
+	curveA = new CRGLGraphSparse(BELT_SUM);
+
+	ASSERT(curveA);
+
+	_plotSettings->setCurveTitle(regSubKey, title);
+
+	curveA->setTile(plotTile);
+	curveA->setThickness(_plotSettings->getCurveThickness(regSubKey));
+
+	addLayer(curveA);
+	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
+	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
+	curveA->setShow(true);
+
+	CRGLText* graphTexts = new CRGLText();
+	graphTexts->setTile(plotTile);
+
+	CString ys;
+	int nums = ys.LoadString(IDS_DEGC_SEC);
+	graphTexts->setTexts(timeAxisLabel, _T(""), ys, title);
+	addLayer(graphTexts);
 }

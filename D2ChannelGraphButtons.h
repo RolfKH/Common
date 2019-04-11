@@ -460,6 +460,7 @@ public:
 	virtual float getYAutoMax(void);
 	virtual void updateGraphSettings(void);
 	void setData(CCatheterDataSet *_dataSet);
+	void setData(CRespBeltDataSet* _dataSet);
 	virtual void setEvents(CEvents *_eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
@@ -468,6 +469,7 @@ public:
 protected:
 	void setData(vector <FLOAT> *_frq,vector <FLOAT> *_tv = NULL) ;
 	CCatheterDataSet *dataSet;
+	CRespBeltDataSet* respBeltDataSet;
 	CRGLGraphSparse *curveRespFrq;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
@@ -483,6 +485,7 @@ public:
 	virtual float getYAutoMax(void);
 	virtual void updateGraphSettings(void);
 	void setData(CCatheterDataSet *_dataSet);
+	void setData(CRespBeltDataSet* _dataSet);
 	virtual void setEvents(CEvents *_eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
@@ -490,6 +493,7 @@ public:
 protected:
 	void setData(vector <FLOAT> *_adm,vector <FLOAT> *_tv = NULL) ;
 	CCatheterDataSet *dataSet;
+	CRespBeltDataSet* respBeltDataSet;
 	CRGLGraphSparse *curveAdmittance;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
@@ -881,6 +885,26 @@ public:
 	afx_msg LRESULT OnNcHitTest(CPoint point);
 };
 
+class CGraphBtnBeltSum : public  CGraphBtnBelt
+{
+public:
+	CGraphBtnBeltSum();
+	~CGraphBtnBeltSum();
+	virtual void updateGraphSettings(void);
+	virtual float getYAutoMax(void);
+	void setData(CRespBeltDataSet* _dataSet);
+	virtual void setEvents(CEvents* _eP);
+	virtual bool getHasData(void);
+	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
+protected:
+	void setData(vector <FLOAT>* _p, vector <FLOAT>* _tv = NULL);
+	CRGLGraphSparse* curveA;
+	virtual void createCurveSettings(CButtonPlotSettings* _plotSettings);
+public:
+	DECLARE_MESSAGE_MAP()
+	afx_msg LRESULT OnNcHitTest(CPoint point);
+};
+
 class CGraphBtnChestBeltEnv : public CGraphBtnBelt
 {
 public:
@@ -894,7 +918,7 @@ public:
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
 protected:
 	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
-	CRGLGraphSparse *curvePOES;
+	CRGLGraphSparse *curveA;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -914,7 +938,7 @@ public:
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
 protected:
 	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
-	CRGLGraphSparse *curveAEnv;
+	CRGLGraphSparse *curveA;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -962,8 +986,7 @@ public:
 	virtual CString getTimeAndAmplAt(LONG _x,LONG _y);
 protected:
 	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
-	CCatheterDataSet *dataSet;
-	CRGLGraphSparse *curveCaEnv;
+	CRGLGraphSparse *curveA;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()

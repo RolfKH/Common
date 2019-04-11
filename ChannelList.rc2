@@ -342,7 +342,7 @@ IDS_ERR_CATH_PAR_SET	"Errors in catheter parameter set - will use defaults for c
 IDS_VERSION_PROBLEM		"There is a data file version problem"
 IDS_VERSIONS_CONFLICT	"This software version %s is not compatible with data file version %d.%d"
 IDS_ABDOM_TITLE			"Abdominal Respiration Belt"
-IDS_CHEST_TITLE			"Chest respiration belt"
+IDS_CHEST_TITLE			"Chest Respiration belt"
 IDS_CANNULA_TITLE		"Nasal Cannula"
 IDS_TOOLTIP_TEXT		"Tooltip text"
 IDS_DATA				"Data"
@@ -524,6 +524,10 @@ BEGIN
 	IDS_IMPORTED4			"Imported"
 	IDS_CHANGE_PASSWORD2 	"Change password"
 	IDS_CANNOT_READ_OLD_EVENTS	"Cannot read old results as the format is too old.\n Data will be reanalysed."
+	IDS_CHEST_BELT_ENV_TITLE	"Chest belt envelope"
+	IDS_ABD_BELT_ENV_TITLE		"Abdominal belt envelope"
+	IDS_BELT_SUM_TITLE			"Sum of belts"
+	IDS_CANNULA_ENV_TITLE		"Nasal Cannula Envelope"
 END
 
 STRINGTABLE

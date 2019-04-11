@@ -79,6 +79,7 @@
 #define FLOW_BASELINE						_T("Flow Baseline")
 #define GRAPH_EVENTS						_T("Events")
 #define ABDOM_BELT							_T("Abdominal belt")
+#define BELT_SUM							_T("Sum of belt signals")
 #define CHEST_BELT							_T("Chest belt")
 #define CANNULA								_T("Cannula")
 #define TIME_AXIS_GRAPH                     _T("Time axis");
