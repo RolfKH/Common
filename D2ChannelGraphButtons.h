@@ -460,7 +460,6 @@ public:
 	virtual float getYAutoMax(void);
 	virtual void updateGraphSettings(void);
 	void setData(CCatheterDataSet *_dataSet);
-	void setData(CRespBeltDataSet* _dataSet);
 	virtual void setEvents(CEvents *_eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
@@ -469,9 +468,31 @@ public:
 protected:
 	void setData(vector <FLOAT> *_frq,vector <FLOAT> *_tv = NULL) ;
 	CCatheterDataSet *dataSet;
-	CRespBeltDataSet* respBeltDataSet;
 	CRGLGraphSparse *curveRespFrq;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
+public:
+	DECLARE_MESSAGE_MAP()
+	afx_msg LRESULT OnNcHitTest(CPoint point);
+};
+
+class CGraphBtnBeltRespFrq : public CGraphBtnChannel
+{
+public:
+	CGraphBtnBeltRespFrq();
+	~CGraphBtnBeltRespFrq();
+	virtual float getYAutoMax(void);
+	virtual void updateGraphSettings(void);
+	void setData(CRespBeltDataSet* _dataSet);
+	virtual void setEvents(CEvents* _eP);
+	virtual bool getHasData(void);
+	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
+	virtual CString getTimeAndAmplAt(LONG _x, LONG _y);
+	virtual void updateCurveColour(void);
+protected:
+	void setData(vector <FLOAT>* _frq, vector <FLOAT>* _tv = NULL);
+	CRespBeltDataSet* respBeltDataSet;
+	CRGLGraphSparse* curveRespFrq;
+	virtual void createCurveSettings(CButtonPlotSettings* _plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnNcHitTest(CPoint point);
@@ -767,8 +788,9 @@ public:
 	virtual CString getTimeAndAmplAt(LONG _x,LONG _y);
 	virtual void updateCurveColour(void);
 protected:
-	void setData(vector <FLOAT> *_mic,vector <FLOAT> *_tv = NULL) ;
+	void setData(vector <FLOAT>* _t, vector <FLOAT>* _baseline, vector <FLOAT>* _tv);
 	CRGLGraphSparse *curveT0Env;
+	CRGLGraphSparse* curveT0Baseline;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -821,6 +843,21 @@ public:
 protected:
 	void setData(vector <FLOAT> *_adm, vector <FLOAT> *_tv = NULL);
 };
+
+
+class CGraphBtnBeltBreathingEfficiency : public CGraphBtnAdmittance
+{
+public:
+	CGraphBtnBeltBreathingEfficiency();
+	~CGraphBtnBeltBreathingEfficiency();
+	virtual void setData(CRespBeltDataSet* _dataSet);
+	virtual bool getHasData(void);
+	virtual void doEventGeometry(bool _includeGraph = false, int _type = -1, bool _withLevel = false);
+	virtual void createCurveSettings(CButtonPlotSettings* _plotSettings);
+protected:
+	void setData(vector <FLOAT>* _adm, vector <FLOAT>* _tv = NULL);
+};
+
 
 //////////////////////////////////////////////////////////////////
 //	Belt family

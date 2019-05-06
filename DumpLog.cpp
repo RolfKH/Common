@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "dumpLog.h"
-#include "..\Common\Events.h"
-
+#include "Events.h"
+#include "RegDefs.h"
 
 /*!
 * @author		RKH
@@ -30,17 +30,22 @@ CDumpLog::CDumpLog()
 	if (!dumpToLog)
 		return;
 	CString heading;
-
+	CString fnType;
 #ifdef IN_AGS_BROWSER
 	heading = _T("<AGSLogFile>\n<Type>Log file for AGS Browser</Type>\n");
 	appName = _T("AGSBrowser.exe\n");
+	fnType = _T("Browser");
 #else
 	heading = _T("<AGSLogFile>\n<Type>Log file for ApneaGraph Spiro Analysis</Type>\n");
 	appName = _T("SpiroAnalysis.exe");
+	fnType = _T("Analysis");
 #endif
 
 	m_si.Init();
 
+#ifdef IN_AGS_BROWSER
+	fileName = _T("C:\\ProgramData\\Spiro Medical\\Spiro Analysis\\LogfileBrowser.xml");
+#else 
 	//---Find file path
 	CXTPRegistryManager reg(HKEY_LOCAL_MACHINE);
 	CString s = reg.GetProfileString(regFiles, regProgramDataFolder, _T(""));
@@ -50,6 +55,7 @@ CDumpLog::CDumpLog()
 	}
 	fileName = s;
 	fileName += LOG_FILE;
+#endif
 	
 	CStdioFile f;
 	BOOL OK = f.Open(fileName, CFile::modeCreate | CFile::modeWrite);

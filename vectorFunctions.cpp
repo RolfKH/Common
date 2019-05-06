@@ -3,6 +3,7 @@
 #include "vectorFunctions.h"
 #include "Events.h"
 #include "D2Graph.h"
+#include "DumpLog.h"
 
 /*!
 *				
@@ -19,6 +20,8 @@
 * @date		22.03.2018
 * @copyright (C)Spiro Medical AS 2013 - 2018
 */
+extern int dumpToLog;
+extern CDumpLog* dmpLogP;
 
 const float defMinTemp		= 200 ;		// Minimum temperature x 10 (degC) as read from TORSO_PARAM
 const float defMaxTemp		= 450 ;		// Maximum temperature x 10 (degC) as read from TORSO_PARAM
@@ -1907,7 +1910,7 @@ void CDataSet::findPeakToPeak(vector <FLOAT> *_v,vector <FLOAT> *_time,vector <F
 Description: Find the envelope curve based on a bipolar signal. Detects derivative sign change.
 Generates a new uniploar vector with a new time axis (fewer points than the input)
 
-Uses a sliding 5 second window and takes the span in this window as the P-P-value
+Uses a sliding 10 second window and takes the span in this window as the P-P-value
 
 _v: Input vector
 _time: Input time axis
@@ -6718,6 +6721,16 @@ vector <FLOAT> *CRespBeltDataSet::getAdmittanceVectorTime(void)	{	return &admitt
 vector <FLOAT> *CRespBeltDataSet::getCannulaTime(void)			{	return &cannulaTime; }
 vector <FLOAT> *CRespBeltDataSet::getBeltTime(void)				{	return &beltTime; }
 
+vector<FLOAT>* CRespBeltDataSet::getBEfficiencyVector(void)
+{
+	return &admittance; // For belts, this is the same as breathing efficiency
+}
+
+vector<FLOAT>* CRespBeltDataSet::getBEfficiencyVectorTime(void)
+{
+	return &admittanceTime; // For belts, this is the same as breathing efficiency
+}
+
 void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFileVersion)
 {
 	if (ar.IsStoring()) {
@@ -6771,7 +6784,7 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 		unsigned int size;
 		ar >> size;
 		FLOAT val;
-		for (unsigned int i = 0 ; i < size ; i++) {
+		for (unsigned int i = 0; i < size; i++) {
 			ar >> val; beltTime.push_back(val);
 			ar >> val; abdom.push_back(val);
 			ar >> val; chest.push_back(val);
@@ -6779,7 +6792,7 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 		unsigned int sizec;
 		ar >> sizec;
 		FLOAT valc;
-		for (unsigned int i = 0 ; i < sizec ; i++) {
+		for (unsigned int i = 0; i < sizec; i++) {
 			ar >> valc; cannulaTime.push_back(valc);
 			ar >> valc; cannula.push_back(valc);
 		}
@@ -6850,10 +6863,16 @@ void CRespBeltDataSet::dataSetIsCompleteFromAGS(void)
 	float minCann = *result.first;
 	float maxCann = *result.second;
 
-	float avgSlope;
-	findPeakToPeak(&abdom,&beltTime,&abdomEnv,&abdomEnvTime,&avgSlope);
-	findPeakToPeak(&chest,&beltTime,&chestEnv,&chestEnvTime,&avgSlope);
-	findPeakToPeak(&cannula,&cannulaTime,&cannulaEnv,&cannulaEnvTime,&avgSlope);
+	findPeakToPeak3(&abdom,&beltTime,&abdomEnv,&abdomEnvTime);
+	findPeakToPeak3(&chest,&beltTime,&chestEnv,&chestEnvTime);
+	findPeakToPeak3(&cannula,&cannulaTime,&cannulaEnv,&cannulaEnvTime);
+
+	//---LP filter Envelope and interpolate
+	CLP_02Hz_Filter bpF;
+	bpF.filter(&abdomEnvTime, &abdomEnv);
+	bpF.filter(&chestEnvTime, &chestEnv);
+	bpF.filter(&cannulaEnvTime, &cannulaEnv);
+
 	makeSumVector(&abdomEnv,&chestEnv,&abdomEnvTime,&chestEnvTime,&beltSum,&beltSumTime);
 	makeAdmittanceVector(&cannulaEnv,&beltSum,&cannulaEnvTime,&beltSumTime,&admittance,&admittanceTime);
 	makeFrqVector(&cannula,&cannulaTime,&respFrq,&respFrqTime);

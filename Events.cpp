@@ -2843,6 +2843,23 @@ CString CEvents::getEventsList(float _timeSec)
 	UINT flag = eventTimelineVector.at(position);
 	CString s,s0;
 	int lines = 0;
+
+	//---If excluded or awake - don not check anything else
+	if (flag & evntTypeExcluded) {
+		int num = s.LoadString(IDS_EXCLUDED4);
+		s0 += s;
+		s0 += _T("\n");
+		lines++;
+		return s0;
+	}
+	if (flag & evntTypeAwake) {
+		int num = s.LoadString(IDS_AWAKE4);
+		s0 += s;
+		s0 += _T("\n");
+		lines++;
+		return s0;
+	}
+
 	if (flag & evntTypeMixed) {
 		int num = s.LoadString(IDS_MIXED2);
 		s0 += s;
@@ -2903,20 +2920,8 @@ CString CEvents::getEventsList(float _timeSec)
 		s0 += _T("\n");
 		lines++;
 	}
-	if (flag & evntTypeAwake) {
-		int num = s.LoadString(IDS_AWAKE4);
-		s0 += s;
-		s0 += _T("\n");
-		lines++;
-	}
 	if (flag & evntTypeSwallow) {
 		int num = s.LoadString(IDS_SWALLOW2);
-		s0 += s;
-		s0 += _T("\n");
-		lines++;
-	}
-	if (flag & evntTypeExcluded) {
-		int num = s.LoadString(IDS_EXCLUDED4);
 		s0 += s;
 		s0 += _T("\n");
 		lines++;

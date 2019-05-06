@@ -1876,6 +1876,8 @@ public:
 	vector <FLOAT> *getAdmittanceVectorTime(void)	;
 	vector <FLOAT> *getCannulaTime(void)			;
 	vector <FLOAT> *getBeltTime(void)				;
+	vector <FLOAT>* getBEfficiencyVector(void)		;
+	vector <FLOAT>* getBEfficiencyVectorTime(void)	;
 	
 	virtual void dataSetIsCompleteFromAGS(void);
 	virtual void dataSetIsCompleteFromTorso(void);

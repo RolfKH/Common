@@ -147,6 +147,7 @@ CRGLTile::CRGLTile(D2D1_RECT_F _fullRect /*= D2D1::RectF(.0f,100.0f,100.0f,.0f)*
 	changeFlag = 0xFF;  //Signal change in the beginning
 	vertLimited = false;
 
+	minLimit = maxLimit = .0f;
 	minimumYRange = defaultMinimumYRange;
 
 	extremeLeft = plotRectScaled.left;
@@ -484,6 +485,7 @@ CRGLLayer::CRGLLayer(CString _regSection /* = _T("Generic Layer")*/) :
 	show = true;
 	page = 0;
 	section = 0;
+	id = 0;
 
 	mp_target = NULL;
 	mp_factory = NULL;
@@ -1244,6 +1246,8 @@ CRGLGraph::CRGLGraph(CString _regSection /* = _T("Graph") */, bool _hideEvents/*
 	dtransparency = 1.0f;
 	dthickness = 1.0f;
 	type = RGLLayerTypeGraph;
+
+	clipRect = D2D1::RectF(0,0,10,10);
 
 	showCursorWnd = false;
 
@@ -3404,7 +3408,56 @@ void CRGLAxes::yAxisWizard(float _bottom, float _top)
 		setYLabelDecimals(0);
 		return;
 	}
-	yTick = 1000.0f;
+	//--15000
+	if (length <= 15000.0f) {
+		yTick = 2000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--30000
+	if (length <= 30000.0f) {
+		yTick = 3000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--50000
+	if (length <= 50000.0f) {
+		yTick = 5000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--100000
+	if (length <= 100000.0f) {
+		yTick = 10000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--200000
+	if (length <= 200000.0f) {
+		yTick = 20000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--500000
+	if (length <= 500000.0f) {
+		yTick = 50000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	//--1000000
+	if (length <= 1000000.0f) {
+		yTick = 100000.0f;
+		yLabelInterval = 2;
+		setYLabelDecimals(0);
+		return;
+	}
+	yTick = 100000.0f;
 	yLabelInterval = 2;
 	setYLabelDecimals(0);
 }
@@ -3799,6 +3852,10 @@ void CRGLAxes::generateLabelArray(void)
 		index++;
 		if ((index == xLabelInterval) && ((xPos < plotRectScaled.right))) {
 			TEXT_DESCR td;
+			td.p0.x = .0f;
+			td.p0.y = .0f;
+			td.p1.x = .0f;
+			td.p1.y = .0f;
 			if (xPos >= .0f) {
 				getHMSms(xPos, &h, &m, &s, &ms);
 				if (hRange > 0) td.txt.Format(_T("%02d:%02d:%02d"), h, m, s);
@@ -5567,13 +5624,16 @@ void CGraphButton::RelayEventAndSetCursor(UINT message, WPARAM wParam, LPARAM lP
 				CString s0;
 				bool ok = getTimeAt(msg.pt.x, msg.pt.y,&s0);
 				if (ok) s += s0;
-				s += _T("\n");
-				nums = rcS.LoadString(IDS_AMPLITUDE);
-				s += rcS;
-				s += _T(" ");
-				
-				ok = getAmplAt(msg.pt.x, msg.pt.y,&s0);
-				if (ok) s += s0;
+
+				if (_amplInfo != DONT_NEED_AMPL) {
+					s += _T("\n");
+					nums = rcS.LoadString(IDS_AMPLITUDE);
+					s += rcS;
+					s += _T(" ");
+
+					ok = getAmplAt(msg.pt.x, msg.pt.y, &s0);
+					if (ok) s += s0;
+				}
 			}
 			m_ttip.SetTitle(TTI_INFO, st);
 			m_ttip.UpdateTipText(s, this);
@@ -5600,14 +5660,17 @@ void CGraphButton::RelayEventAndSetCursor(UINT message, WPARAM wParam, LPARAM lP
 		s += _T("  ");
 		CString s0;
 		bool ok = getTimeAt(msg.pt.x, msg.pt.y,&s0);
-		if (ok) s += s0;
-		s += _T("\n");
-		//rcS.LoadString(IDS_AMPLITUDE);
-		//s += rcS;
-		//s += _T(" ");
-		
-		ok =  getEUAmplAt(msg.pt.x, msg.pt.y,&s0);
-		if (ok) s += s0;
+			if (ok) s += s0;
+
+		if (_amplInfo != DONT_NEED_AMPL) {
+			s += _T("\n");
+			//rcS.LoadString(IDS_AMPLITUDE);
+			//s += rcS;
+			//s += _T(" ");
+
+			ok = getEUAmplAt(msg.pt.x, msg.pt.y, &s0);
+			if (ok) s += s0;
+		}
 
 		currentCursor = CURS_ARROW;
 		m_ttip.UpdateTipText(s, this);
@@ -6373,6 +6436,8 @@ void CGraphButton::OnMouseMove(UINT nFlags, CPoint point)
 	//---Empty the queue
 	MSG msg;
 	while (PeekMessage(&msg, this->m_hWnd, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE));
+	
+	TRACE(_T("Graph MM point x %d\n"), point.x);
 
 	bool left = (nFlags & MK_LBUTTON) > 0;
 	bool right = (nFlags & MK_RBUTTON) > 0;

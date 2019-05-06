@@ -240,7 +240,7 @@ void CButtonPlotSettings::fromReg(void)
 	CXTRegistryManager *reg = new CXTRegistryManager;
 	reg->SetRegistryKey(COMPANY_NAME,KEY_GRAPHICS);
 
-	//---Test registry
+	//---Test registry - if no user data, read from HKEY_LOCAL_MACHINE
 	COLORREF colTest;
 	BOOL okTest = reg->GetProfileColor(regSubKey,BACKGROUND_COLOUR,&colTest);
 	if (!okTest) {
@@ -295,7 +295,7 @@ void CButtonPlotSettings::fromReg(void)
 CButtonPlotSettings::~CButtonPlotSettings()
 {
 	if (needSave) {		
-		CXTRegistryManager *reg = new CXTRegistryManager;
+		CXTRegistryManager *reg = new CXTRegistryManager;  
 
 		reg->SetRegistryKey(COMPANY_NAME,KEY_GRAPHICS);
 		BOOL OK = reg->WriteProfileColor(regSubKey,BACKGROUND_COLOUR,&background);

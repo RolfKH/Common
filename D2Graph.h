@@ -127,6 +127,9 @@ const float eventTranspLevel = 1.0f; // .4f;		// Transparency of the event fill-
 const float sparseDensePlotLimit = 1800.0f;			// Longer than 30 minutes, draw sparse (25% of points)
 const int defaultSparseStep = 4;
 const int envelopesSparseStep = 10;
+
+#define DONT_NEED_AMPL		_T("DontNeedAmpl")
+
 										//---Colours
 const float bgCol[][3] = {
 	{ .0f,.0f,1.0f },		// Lower is BLUE
