@@ -123,6 +123,7 @@ bool CReadWriteAGSData::checkVersionCompatibility(bool _issueWarning)
 		if ((13 == majorFileVersion) && (0 == minorFileVersion)) return true;
 		if ((14 == majorFileVersion) && (0 == minorFileVersion)) return true;
 		if ((15 == majorFileVersion) && (0 == minorFileVersion)) return true; // New in version 6.1.1
+		if ((16 == majorFileVersion) && (0 == minorFileVersion)) return true; // New in version 6.1.1
 	}
 	else if (_T("6.1.0.0") == swVersion) {
 		if ((2 == majorFileVersion) && (0 == minorFileVersion)) return true;

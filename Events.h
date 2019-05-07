@@ -226,6 +226,11 @@ const CString regSpO2stabilityLimit					= _T("SpO2 stability limit");
 const CString regT0EnvPercentStabilityLimit			= _T("T0 env percent stability limit");
 const CString regT1EnvPercentStabilityLimit			= _T("T1 env percent stability limit");
 const CString regPressureEnvPercentStabilityLimit	= _T("Pressure env percent stability limit");
+
+const CString regAbdomEnvPercentStabilityLimit		= _T("Abdom env percent stability limit");
+const CString regChestEnvPercentStabilityLimit		= _T("Chest env percent stability limit");
+const CString regCannulaEnvPercentStabilityLimit	= _T("Cannula env percent stability limit");
+
 const CString regFlowStopFraction					= _T("Flow stop fraction");
 const CString regPressureDeadFraction				= _T("Pressure dead fraction");	
 const CString regSpO2DropSeekWindowLength			= _T("Seek time window length to find SpO2 drops associated with hypopnea");
@@ -417,6 +422,9 @@ const int minVectorLengthForAnalysis = 20;
 #define SPO2_STABILITY_LIMIT				2.0f		// +/- 2 % oxygen saturation
 #define T0T1ENV_PERCENT_STABILITY_LIMIT		10.0f		// +/- 10% of median
 #define PRESSENV_PERCENT_STABILITY_LIMIT	10.0f		// +/- 10% of median
+
+#define BELTENV_PERCENT_STABILITY_LIMIT		10.0f		// +/- 10% of median
+#define CANNULAENV_PERCENT_STABILITY_LIMIT	10.0f		// +/- 10% of median
 
 #define HYPO_LIMIT_FRACTION					0.7f		// 30% reduction compared to baseline
 #define FLOW_STOP_FRACTION					0.1f		// 90% reduction compared to baseline

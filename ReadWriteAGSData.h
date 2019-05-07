@@ -56,7 +56,7 @@ Version 14		5.6.1			Email and telephone of patient are now encrypted
 Version 15		6.1.1			Added save and read of respbelts enviroment data, breathing efficiency and resp frequency
 */
 
-#define AGS_FILE_MAJOR_VERSION		15
+#define AGS_FILE_MAJOR_VERSION		16
 #define AGS_FILE_MINOR_VERSION		0
 
 class CReadWriteAGSData

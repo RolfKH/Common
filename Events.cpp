@@ -7483,7 +7483,7 @@ void CEvents::setEditedDetectionCriteria(DETECTION_CRITERIA _dt, bool _onlySpO2D
 
 void CEvents::recomputeFlowAndBreathingEfficiency(void)
 {
-	if (cathData) cathData->computeFlowAndBreathingEfficiency(detectionCriteria.flowDetectBalanceFactor);
+	if (cathData) cathData->computeFlowAndBreathingEfficiencyForCatheter(detectionCriteria.flowDetectBalanceFactor);
 }
 
 /*

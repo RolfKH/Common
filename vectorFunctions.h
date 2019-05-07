@@ -1778,13 +1778,14 @@ public:
 	vector <TIME_WINDOW> *getInvalidTimeWindowsVector(void);
 	void resetSwallow(void);
 	void fillSwallowArray(CArray <CSwallowEvnt *, CSwallowEvnt *> *_swallowEventArray); 
-	void computeFlowAndBreathingEfficiency(float _balanceFactor = FLOW_DETECT_BALANCE_FACTOR); // k * T1 + (1.0 - k) * T0);
+	void computeFlowAndBreathingEfficiencyForCatheter(float _balanceFactor = FLOW_DETECT_BALANCE_FACTOR); // k * T1 + (1.0 - k) * T0);
 protected:
 	vector <TIME_WINDOW> invalidCTimeWindows;
 	float baselineLength;					// Seconds
 	float t1EnvPercentStabilityLimit;		// In percent of median
 	float t0EnvPercentStabilityLimit;		// In percent of median
 	float pressureEnvPercentStabilityLimit;	// In percent of median
+
 	float minTemp;		// Minimum temperature x 10 (degC) as read from TORSO_PARAM
 	float maxTemp;		// Maximum temperature x 10 (degC) as read from TORSO_PARAM
 	float minPress;		// Minimum pressure (cmH2O) as read from TORSO_PARAM
@@ -1878,6 +1879,10 @@ public:
 	vector <FLOAT> *getBeltTime(void)				;
 	vector <FLOAT>* getBEfficiencyVector(void)		;
 	vector <FLOAT>* getBEfficiencyVectorTime(void)	;
+	vector <FLOAT>* getAbdomEnvBaseline(void)		;
+	vector <FLOAT>* getChestEnvBaseline(void)		;
+	vector <FLOAT>* getCannulaEnvBaseline(void)		;
+	vector <FLOAT>* getBeltSumBaseline(void)		;
 	
 	virtual void dataSetIsCompleteFromAGS(void);
 	virtual void dataSetIsCompleteFromTorso(void);
@@ -1905,6 +1910,16 @@ protected:
 	vector <FLOAT> admittanceTime	;
 	vector <FLOAT> beltTime			;
 	vector <FLOAT> cannulaTime		;
+
+	vector <FLOAT> abdomEnvBaseline		;
+	vector <FLOAT> chestEnvBaseline		;
+	vector <FLOAT> cannulaEnvBaseline	;
+	vector <FLOAT> beltSumBaseline		;
+
+	float baselineLength;					// Seconds
+	float abdomEnvPercentStabilityLimit;	// In percent of median
+	float chestEnvPercentStabilityLimit;	// In percent of median
+	float cannulaEnvPercentStabilityLimit;	// In percent of median
 };
 
 

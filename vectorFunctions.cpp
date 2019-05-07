@@ -4980,9 +4980,10 @@ CCatheterDataSet::CCatheterDataSet() :
 	baselineLength = OK ? (float) d : BASELINE_LENGTH;
 	OK = reg->GetProfileDouble(regSectionCriteria,regT1EnvPercentStabilityLimit,&d);
 	t1EnvPercentStabilityLimit = OK ? (float) d : T0T1ENV_PERCENT_STABILITY_LIMIT;
-	
+		
 	OK = reg->GetProfileDouble(regSectionCriteria,regPressureEnvPercentStabilityLimit,&d);
 	pressureEnvPercentStabilityLimit = OK ? (float) d : PRESSENV_PERCENT_STABILITY_LIMIT;
+
 	delete reg;
 }
 
@@ -5843,7 +5844,7 @@ void CCatheterDataSet::dataSetIsCompleteFromAGS(CATH_PARAMETER_SET *_par)
 		makeSumVector(&T0Env,&T1Env,&T0EnvTime,&T1EnvTime,&T0plusT1,&T0plusT1Time);
 	if (!(admittance.size() && admittanceTime.size()))
 		makeAdmittanceVector(&POESEnv,&T0plusT1,&POESEnvTime,&T0plusT1Time,&admittance,&admittanceTime);
-	computeFlowAndBreathingEfficiency();
+	computeFlowAndBreathingEfficiencyForCatheter();
 
 	keyDataPOES.setData(&POES,&flags);
 	keyDataPPH.setData(&PPH,&flags);
@@ -5924,7 +5925,7 @@ Description: Generates a vector for flow estimation.
 
 	Balance factor is k:  k * T1 + (1.0 - k) * T0
 */
-void CCatheterDataSet::computeFlowAndBreathingEfficiency(float _balanceFactor /* = FLOW_DETECT_BALANCE_FACTOR*/)
+void CCatheterDataSet::computeFlowAndBreathingEfficiencyForCatheter(float _balanceFactor /* = FLOW_DETECT_BALANCE_FACTOR*/)
 {
 	ASSERT(_balanceFactor >= .0f);
 	ASSERT(_balanceFactor <= 1.0f);
@@ -6343,7 +6344,7 @@ void CCatheterDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 				makeGradientVector(&POESEnv, &PPHEnv, &POESEnvTime, &PPHEnvTime, &pGradient, &pGradientTime);
 				makeSumVector(&T0Env, &T1Env, &T0EnvTime, &T1EnvTime, &T0plusT1, &T0plusT1Time);
 				makeAdmittanceVector(&POESEnv, &T0plusT1, &POESEnvTime, &T0plusT1Time, &admittance, &admittanceTime);
-				computeFlowAndBreathingEfficiency(); // Use default
+				computeFlowAndBreathingEfficiencyForCatheter(); // Use default
 			}
 
 			ar >> baselineLength;
@@ -6635,6 +6636,30 @@ void CAG200MicDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 
 CRespBeltDataSet::CRespBeltDataSet()
 {
+	CXTRegistryManager* reg = new CXTRegistryManager;
+
+	//---Test registry
+	double dtest;
+	int OKt = reg->GetProfileDouble(regSectionCriteria, regBaselineLength, &dtest);
+	if (!OKt) {
+		delete reg;
+		reg = new CXTRegistryManager(HKEY_LOCAL_MACHINE);
+	}
+
+	double d;
+	int OK = reg->GetProfileDouble(regSectionCriteria, regBaselineLength, &d);
+	baselineLength = OK ? (float)d : BASELINE_LENGTH;
+
+	OK = reg->GetProfileDouble(regSectionCriteria, regAbdomEnvPercentStabilityLimit, &d);
+	abdomEnvPercentStabilityLimit = OK ? (float)d : BELTENV_PERCENT_STABILITY_LIMIT;
+
+	OK = reg->GetProfileDouble(regSectionCriteria, regChestEnvPercentStabilityLimit, &d);
+	chestEnvPercentStabilityLimit = OK ? (float)d : BELTENV_PERCENT_STABILITY_LIMIT;
+
+	OK = reg->GetProfileDouble(regSectionCriteria, regCannulaEnvPercentStabilityLimit, &d);
+	cannulaEnvPercentStabilityLimit = OK ? (float)d : CANNULAENV_PERCENT_STABILITY_LIMIT;
+
+	delete reg;
 }
 
 CRespBeltDataSet::~CRespBeltDataSet()
@@ -6659,6 +6684,10 @@ void CRespBeltDataSet::clear(void)
 	admittance.clear();
 	admittanceTime.clear();
 	timeaxis.clear();
+	abdomEnvBaseline.clear();
+	chestEnvBaseline.clear();
+	cannulaEnvBaseline.clear();
+	beltSumBaseline.clear();
 }
 
 void CRespBeltDataSet::addToXYRawCannula(FLOAT _cannula,FLOAT _time)
@@ -6731,6 +6760,26 @@ vector<FLOAT>* CRespBeltDataSet::getBEfficiencyVectorTime(void)
 	return &admittanceTime; // For belts, this is the same as breathing efficiency
 }
 
+vector<FLOAT>* CRespBeltDataSet::getAbdomEnvBaseline(void)
+{
+	return &abdomEnvBaseline;
+}		   
+
+vector<FLOAT>* CRespBeltDataSet::getChestEnvBaseline(void)
+{
+	return &chestEnvBaseline;
+}
+
+vector<FLOAT>* CRespBeltDataSet::getCannulaEnvBaseline(void)
+{
+	return &cannulaEnvBaseline;
+}
+
+vector<FLOAT>* CRespBeltDataSet::getBeltSumBaseline(void)
+{
+	return &beltSumBaseline;
+}
+
 void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFileVersion)
 {
 	if (ar.IsStoring()) {
@@ -6741,6 +6790,11 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 		ASSERT(abdomEnvTime.size() == abdomEnv.size());
 		ASSERT(chestEnvTime.size() == chestEnv.size());
 		ASSERT(cannulaEnvTime.size() == cannulaEnv.size());
+
+		ASSERT(cannulaEnvTime.size() == cannulaEnvBaseline.size());
+		ASSERT(abdomEnvTime.size() == abdomEnvBaseline.size());
+		ASSERT(chestEnvTime.size() == chestEnvBaseline.size());
+		ASSERT(beltSumTime.size() == beltSumBaseline.size());
 
 		unsigned int size = beltTime.size();
 		ar << size;
@@ -6776,6 +6830,29 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 		for (unsigned int i = 0; i < sizeCAB; i++) {
 			ar << cannulaEnvTime[i];
 			ar << cannulaEnv[i];
+		}
+		/////////////////////////////////////
+		//---New in file version 16.0
+		/////////////////////////////////////
+		unsigned int sizeAB2 = abdomEnvBaseline.size();
+		ar << sizeAB2;
+		for (unsigned int i = 0; i < sizeAB2; i++) {
+			ar << abdomEnvBaseline[i];
+		}
+		unsigned int sizeCB2 = chestEnvBaseline.size();
+		ar << sizeCB2;
+		for (unsigned int i = 0; i < sizeCB2; i++) {
+			ar << chestEnvBaseline[i];
+		}
+		unsigned int sizeCAB2 = cannulaEnvBaseline.size();
+		ar << sizeCAB2;
+		for (unsigned int i = 0; i < sizeCAB2; i++) {
+			ar << cannulaEnvBaseline[i];
+		}
+		unsigned int sizeBSB2 = beltSumBaseline.size();
+		ar << sizeBSB2;
+		for (unsigned int i = 0; i < sizeBSB2; i++) {
+			ar << beltSumBaseline[i];
 		}
 	}
 	else {  // Reading
@@ -6820,6 +6897,31 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 				ar >> valc; cannulaEnv.push_back(valc);
 			}
 		}
+		/////////////////////////////////////
+		//---New in file version 16.0
+		/////////////////////////////////////
+		if (majorFileVersion >= 16) {
+			unsigned int sizeAB;
+			ar >> sizeAB;
+			for (unsigned int i = 0; i < sizeAB; i++) {
+				ar >> valc; abdomEnvBaseline.push_back(valc);
+			}
+			unsigned int sizeCB;
+			ar >> sizeCB;
+			for (unsigned int i = 0; i < sizeCB; i++) {
+				ar >> valc; chestEnvBaseline.push_back(valc);
+			}
+			unsigned int sizeCAB;
+			ar >> sizeCAB;
+			for (unsigned int i = 0; i < sizeCAB; i++) {
+				ar >> valc; cannulaEnvBaseline.push_back(valc);
+			}
+			unsigned int sizeBSB;
+			ar >> sizeBSB;
+			for (unsigned int i = 0; i < sizeBSB; i++) {
+				ar >> valc; beltSumBaseline.push_back(valc);
+			}
+		}
 
 		dataSetIsCompleteFromAGS();
 		FLOAT percBad;
@@ -6851,6 +6953,29 @@ void CRespBeltDataSet::dataSetIsCompleteFromAGS(void)
 	if (!chest.size()) return;
 	if (!cannula.size()) return;
 
+	//---Do not run if all vectors have been read
+	if (abdom.size() &&
+		beltTime.size() &&
+		cannula.size() &&
+		cannulaTime.size() &&
+		chest.size() &&
+		beltSum.size() &&
+		beltSumTime.size() &&
+		abdomEnv.size() &&
+		abdomEnvTime.size() &&
+		chestEnv.size() &&
+		chestEnvTime.size() &&
+		cannulaEnv.size() &&
+		cannulaEnvTime.size() &&
+		respFrq.size() &&
+		respFrqTime.size() &&
+		admittance.size() &&
+		admittanceTime.size() &&
+		abdomEnvBaseline.size() &&
+		chestEnvBaseline.size() &&
+		cannulaEnvBaseline.size() &&
+		beltSumBaseline.size()) return;
+
 	auto result = std::minmax_element (abdom.begin(),abdom.end());
 	float minAb = *result.first;
 	float maxAb = *result.second;
@@ -6876,6 +7001,19 @@ void CRespBeltDataSet::dataSetIsCompleteFromAGS(void)
 	makeSumVector(&abdomEnv,&chestEnv,&abdomEnvTime,&chestEnvTime,&beltSum,&beltSumTime);
 	makeAdmittanceVector(&cannulaEnv,&beltSum,&cannulaEnvTime,&beltSumTime,&admittance,&admittanceTime);
 	makeFrqVector(&cannula,&cannulaTime,&respFrq,&respFrqTime);
+
+	//---Find baseline.
+	if (!(abdomEnvBaseline.size() && chestEnvBaseline.size() && cannulaEnvBaseline.size() && beltSumBaseline.size())) {
+		generateBaselineVectorAASM(&abdomEnv, &abdomEnvTime, &abdomEnvBaseline, abdomEnvPercentStabilityLimit, baselineLength, false);
+		generateBaselineVectorAASM(&chestEnv, &chestEnvTime, &chestEnvBaseline, chestEnvPercentStabilityLimit, baselineLength, false);
+		generateBaselineVectorAASM(&cannulaEnv, &cannulaEnvTime, &cannulaEnvBaseline, cannulaEnvPercentStabilityLimit, baselineLength, true);
+		//*INN*  Check flow signal for catheter generateBaselineVectorAASM(&beltSum, &beltSumTime, &beltSumBaseline, beltSumPercentStabilityLimit, baselineLength, true);
+
+		//---Find flat areas missing peak-to-peaks
+		setFlatAreasToZero(&abdom, &beltTime, &abdomEnv, &abdomEnvTime, &abdomEnvBaseline);
+		setFlatAreasToZero(&chest, &beltTime, &chestEnv, &chestEnvTime, &chestEnvBaseline);
+		setFlatAreasToZero(&cannula, &cannulaTime, &cannulaEnv, &cannulaEnvTime, &cannulaEnvBaseline);
+	}
 }
 
 float CRespBeltDataSet::getStart(void)
