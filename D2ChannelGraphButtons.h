@@ -933,9 +933,11 @@ public:
 	virtual void setEvents(CEvents* _eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
+	virtual CString getTimeAndAmplAt(LONG _x, LONG _y);
 protected:
-	void setData(vector <FLOAT>* _p, vector <FLOAT>* _tv = NULL);
+	void setData(vector <FLOAT>* _p, vector <FLOAT>* _baseline, vector <FLOAT>* _tv = NULL);
 	CRGLGraphSparse* curveA;
+	CRGLGraphSparse* curveBaseline;
 	virtual void createCurveSettings(CButtonPlotSettings* _plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -953,9 +955,11 @@ public:
 	virtual void setEvents(CEvents *_eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
+	virtual CString getTimeAndAmplAt(LONG _x, LONG _y);
 protected:
-	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
+	void setData(vector <FLOAT>* _p, vector <FLOAT>* _baseline, vector <FLOAT>* _tv = NULL);;
 	CRGLGraphSparse *curveA;
+	CRGLGraphSparse* curveBaseline;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -973,9 +977,11 @@ public:
 	virtual void setEvents(CEvents *_eP);
 	virtual bool getHasData(void);
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
+	virtual CString getTimeAndAmplAt(LONG _x, LONG _y);
 protected:
-	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
+	void setData(vector <FLOAT> *_p,vector <FLOAT> *_baseline,vector <FLOAT> *_tv = NULL) ;
 	CRGLGraphSparse *curveA;
+	CRGLGraphSparse* curveBaseline;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()
@@ -1022,8 +1028,9 @@ public:
 	virtual void setEventsToShow(UINT _evToShow, bool _onlyShowEvents = false);
 	virtual CString getTimeAndAmplAt(LONG _x,LONG _y);
 protected:
-	void setData(vector <FLOAT> *_p,vector <FLOAT> *_tv = NULL) ;
+	void setData(vector <FLOAT>* _p, vector <FLOAT>* _baseline, vector <FLOAT>* _tv = NULL);
 	CRGLGraphSparse *curveA;
+	CRGLGraphSparse* curveBaseline;
 	virtual void createCurveSettings(CButtonPlotSettings *_plotSettings);
 public:
 	DECLARE_MESSAGE_MAP()

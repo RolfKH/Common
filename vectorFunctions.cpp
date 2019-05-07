@@ -6659,6 +6659,9 @@ CRespBeltDataSet::CRespBeltDataSet()
 	OK = reg->GetProfileDouble(regSectionCriteria, regCannulaEnvPercentStabilityLimit, &d);
 	cannulaEnvPercentStabilityLimit = OK ? (float)d : CANNULAENV_PERCENT_STABILITY_LIMIT;
 
+	OK = reg->GetProfileDouble(regSectionCriteria, regBeltSumPercentStabilityLimit, &d);
+	beltSumPercentStabilityLimit = OK ? (float)d : BELT_SUM_PERCENT_STABILITY_LIMIT;
+	
 	delete reg;
 }
 
@@ -6929,6 +6932,7 @@ void CRespBeltDataSet::Serialize(CArchive& ar, int majorFileVersion, int minorFi
 	}
 }
 
+
 void CRespBeltDataSet::dataSetIsCompleteFromAPN(void)
 {
 	dataSetIsCompleteFromAGS();
@@ -7007,8 +7011,8 @@ void CRespBeltDataSet::dataSetIsCompleteFromAGS(void)
 		generateBaselineVectorAASM(&abdomEnv, &abdomEnvTime, &abdomEnvBaseline, abdomEnvPercentStabilityLimit, baselineLength, false);
 		generateBaselineVectorAASM(&chestEnv, &chestEnvTime, &chestEnvBaseline, chestEnvPercentStabilityLimit, baselineLength, false);
 		generateBaselineVectorAASM(&cannulaEnv, &cannulaEnvTime, &cannulaEnvBaseline, cannulaEnvPercentStabilityLimit, baselineLength, true);
-		//*INN*  Check flow signal for catheter generateBaselineVectorAASM(&beltSum, &beltSumTime, &beltSumBaseline, beltSumPercentStabilityLimit, baselineLength, true);
-
+		generateBaselineVectorAASM(&beltSum, &beltSumTime, &beltSumBaseline, beltSumPercentStabilityLimit, baselineLength, true);
+		
 		//---Find flat areas missing peak-to-peaks
 		setFlatAreasToZero(&abdom, &beltTime, &abdomEnv, &abdomEnvTime, &abdomEnvBaseline);
 		setFlatAreasToZero(&chest, &beltTime, &chestEnv, &chestEnvTime, &chestEnvBaseline);

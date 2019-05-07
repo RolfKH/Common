@@ -822,7 +822,6 @@ void CRGLGraphSparse::makeSourceGeometry(bool _reload)
 
 	FLOAT dist = plotRectScaled.right - plotRectScaled.left;
 
-
 	ASSERT(timeVector);
 	if (timeVector->size() > 0) {
 		if (dSparseGeometry) dSparseGeometry->Release();

@@ -230,6 +230,7 @@ const CString regPressureEnvPercentStabilityLimit	= _T("Pressure env percent sta
 const CString regAbdomEnvPercentStabilityLimit		= _T("Abdom env percent stability limit");
 const CString regChestEnvPercentStabilityLimit		= _T("Chest env percent stability limit");
 const CString regCannulaEnvPercentStabilityLimit	= _T("Cannula env percent stability limit");
+const CString regBeltSumPercentStabilityLimit		= _T("Belt sum percent stability limit");
 
 const CString regFlowStopFraction					= _T("Flow stop fraction");
 const CString regPressureDeadFraction				= _T("Pressure dead fraction");	
@@ -425,6 +426,7 @@ const int minVectorLengthForAnalysis = 20;
 
 #define BELTENV_PERCENT_STABILITY_LIMIT		10.0f		// +/- 10% of median
 #define CANNULAENV_PERCENT_STABILITY_LIMIT	10.0f		// +/- 10% of median
+#define BELT_SUM_PERCENT_STABILITY_LIMIT	10.0f		// +/- 10% of median
 
 #define HYPO_LIMIT_FRACTION					0.7f		// 30% reduction compared to baseline
 #define FLOW_STOP_FRACTION					0.1f		// 90% reduction compared to baseline

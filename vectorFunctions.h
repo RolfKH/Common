@@ -1919,6 +1919,7 @@ protected:
 	float baselineLength;					// Seconds
 	float abdomEnvPercentStabilityLimit;	// In percent of median
 	float chestEnvPercentStabilityLimit;	// In percent of median
+	float beltSumPercentStabilityLimit;		// In percent of median
 	float cannulaEnvPercentStabilityLimit;	// In percent of median
 };
 

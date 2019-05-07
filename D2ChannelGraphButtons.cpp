@@ -5099,6 +5099,7 @@ CGraphBtnBeltSum::CGraphBtnBeltSum()
 	dataSet = NULL;
 	regSubKey = BELT_SUM;
 	curveA = NULL;
+	curveBaseline = NULL;
 	int nums = title.LoadString(IDS_BELT_SUM_TITLE);
 
 	dualPolarity = false;
@@ -5130,6 +5131,10 @@ void CGraphBtnBeltSum::updateGraphSettings(void)
 	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
 	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
 
+	curveBaseline->setColour(plotSettings.getCurveColour(BELT_SUM_BASELINE));
+	curveBaseline->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(BELT_SUM_BASELINE));
+	curveBaseline->setThickness(plotSettings.getCurveThickness(BELT_SUM_BASELINE));
+
 	render();
 }
 
@@ -5140,6 +5145,22 @@ void CGraphBtnBeltSum::setEventsToShow(UINT _evToShow, bool _onlyShowEvents /*= 
 	curveA->setEventsToShow(_evToShow);
 	InvalidateRect(NULL, TRUE);
 	UpdateWindow();
+}
+
+CString CGraphBtnBeltSum::getTimeAndAmplAt(LONG _x, LONG _y)
+{
+	CString s;
+	s = curveA->getStringTimeAndAmplAt(_x, _y, _T(" "));
+
+	if (advancedMode) {
+		CString s2;
+		int nums = s2.LoadString(IDS_BASELINE);
+		s += _T("\n");
+		s += s2;
+		s += _T(" ");
+		s += curveBaseline->getStringAmplAt(_x, _y, _T(" "));
+	}
+	return s;
 }
 
 /*
@@ -5156,13 +5177,15 @@ void CGraphBtnBeltSum::setData(CRespBeltDataSet* _dataSet)
 {
 	dataSet = _dataSet;
 	ASSERT(dataSet);
-	setData(dataSet->getBeltSumVector(), dataSet->getBeltSumVectorTime());
+	setData(dataSet->getBeltSumVector(), dataSet->getBeltSumBaseline(), dataSet->getBeltSumVectorTime());
 }
 
-void CGraphBtnBeltSum::setData(vector <FLOAT>* _t, vector <FLOAT>* _tv)
+void CGraphBtnBeltSum::setData(vector <FLOAT>* _p, vector <FLOAT>* _baseline, vector <FLOAT>* _tv)
 {
 	ASSERT(curveA);
-	curveA->setData(_t, _tv);
+	ASSERT(curveBaseline);
+	curveA->setData(_p, _tv);
+	curveBaseline->setData(_baseline, _tv);
 }
 
 void CGraphBtnBeltSum::setEvents(CEvents* _eP)
@@ -5176,8 +5199,12 @@ void CGraphBtnBeltSum::setEvents(CEvents* _eP)
 void CGraphBtnBeltSum::createCurveSettings(CButtonPlotSettings* _plotSettings)
 {
 	curveA = new CRGLGraphSparse(BELT_SUM);
-
 	ASSERT(curveA);
+
+	curveA->setSparseStepSize(envelopesSparseStep);
+	curveBaseline = new CRGLGraphSparse(BELT_SUM_BASELINE);
+	ASSERT(curveBaseline);
+	curveBaseline->setSparseStepSize(envelopesSparseStep);
 
 	_plotSettings->setCurveTitle(regSubKey, title);
 
@@ -5188,6 +5215,14 @@ void CGraphBtnBeltSum::createCurveSettings(CButtonPlotSettings* _plotSettings)
 	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
 	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
 	curveA->setShow(true);
+
+	//---Curve Env baseline
+	curveBaseline->setTile(plotTile);
+	curveBaseline->setThickness(_plotSettings->getCurveThickness(BELT_SUM_BASELINE));
+	addLayer(curveBaseline);
+	curveBaseline->setColour(_plotSettings->getCurveColour(BELT_SUM_BASELINE));
+	curveBaseline->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(BELT_SUM_BASELINE));
+	curveBaseline->setShow(true);
 
 	CRGLText* graphTexts = new CRGLText();
 	graphTexts->setTile(plotTile);
@@ -6159,6 +6194,7 @@ CGraphBtnChestBeltEnv::CGraphBtnChestBeltEnv()
 	dataSet = NULL;
 	regSubKey = CHEST_BELT_ENV;
 	curveA = NULL;
+	curveBaseline = NULL;
 	int nums = title.LoadString(IDS_CHEST_BELT_ENV_TITLE);
 
 	dualPolarity = false;
@@ -6190,6 +6226,10 @@ void CGraphBtnChestBeltEnv::updateGraphSettings(void)
 	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
 	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
 
+	curveBaseline->setColour(plotSettings.getCurveColour(CHEST_BELT_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(CHEST_BELT_ENV_BASELINE));
+	curveBaseline->setThickness(plotSettings.getCurveThickness(CHEST_BELT_ENV_BASELINE));
+
 	render();
 }
 
@@ -6213,7 +6253,7 @@ void CGraphBtnChestBeltEnv::setData(CRespBeltDataSet * _dataSet)
 {
 	dataSet = _dataSet;
 	ASSERT(dataSet);
-	setData(dataSet->getChestEnvVector(), dataSet->getChestEnvVectorTime());
+	setData(dataSet->getChestEnvVector(), dataSet->getChestEnvBaseline(), dataSet->getChestEnvVectorTime());
 }
 
 void CGraphBtnChestBeltEnv::setEvents(CEvents * _eP)
@@ -6239,17 +6279,39 @@ void CGraphBtnChestBeltEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEvents
 	UpdateWindow();
 }
 
-void CGraphBtnChestBeltEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
+CString CGraphBtnChestBeltEnv::getTimeAndAmplAt(LONG _x, LONG _y)
+{
+	CString s;
+	s = curveA->getStringTimeAndAmplAt(_x, _y, _T(" "));
+
+	if (advancedMode) {
+		CString s2;
+		int nums = s2.LoadString(IDS_BASELINE);
+		s += _T("\n");
+		s += s2;
+		s += _T(" ");
+		s += curveBaseline->getStringAmplAt(_x, _y, _T(" "));
+	}
+	return s;
+}
+
+void CGraphBtnChestBeltEnv::setData(vector<FLOAT>* _p, vector <FLOAT>* _baseline, vector<FLOAT>* _tv)
 {
 	ASSERT(curveA);
+	ASSERT(curveBaseline);
 	curveA->setData(_p, _tv);
+	curveBaseline->setData(_baseline, _tv);
 }
 
 void CGraphBtnChestBeltEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
 	curveA = new CRGLGraphSparse(BELT_SUM);
-
 	ASSERT(curveA);
+
+	curveA->setSparseStepSize(envelopesSparseStep);
+	curveBaseline = new CRGLGraphSparse(CHEST_BELT_ENV_BASELINE);
+	ASSERT(curveBaseline);
+	curveBaseline->setSparseStepSize(envelopesSparseStep);
 
 	_plotSettings->setCurveTitle(regSubKey, title);
 
@@ -6260,6 +6322,14 @@ void CGraphBtnChestBeltEnv::createCurveSettings(CButtonPlotSettings * _plotSetti
 	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
 	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
 	curveA->setShow(true);
+
+	//---Curve Env baseline
+	curveBaseline->setTile(plotTile);
+	curveBaseline->setThickness(_plotSettings->getCurveThickness(CHEST_BELT_ENV_BASELINE));
+	addLayer(curveBaseline);
+	curveBaseline->setColour(_plotSettings->getCurveColour(CHEST_BELT_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(CHEST_BELT_ENV_BASELINE));
+	curveBaseline->setShow(true);
 
 	CRGLText* graphTexts = new CRGLText();
 	graphTexts->setTile(plotTile);
@@ -6275,6 +6345,7 @@ CGraphBtnAbdominalBeltEnv::CGraphBtnAbdominalBeltEnv()
 	dataSet = NULL;
 	regSubKey = ABDOM_BELT_ENV;
 	curveA = NULL;
+	curveBaseline = NULL;
 	int nums = title.LoadString(IDS_ABD_BELT_ENV_TITLE);
 
 	dualPolarity = false;
@@ -6306,6 +6377,10 @@ void CGraphBtnAbdominalBeltEnv::updateGraphSettings(void)
 	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
 	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
 
+	curveBaseline->setColour(plotSettings.getCurveColour(ABDOM_BELT_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(ABDOM_BELT_ENV_BASELINE));
+	curveBaseline->setThickness(plotSettings.getCurveThickness(ABDOM_BELT_ENV_BASELINE));
+
 	render();
 }
 
@@ -6329,7 +6404,7 @@ void CGraphBtnAbdominalBeltEnv::setData(CRespBeltDataSet * _dataSet)
 {
 	dataSet = _dataSet;
 	ASSERT(dataSet);
-	setData(dataSet->getAbdomEnvVector(), dataSet->getAbdomEnvVectorTime());
+	setData(dataSet->getAbdomEnvVector(), dataSet->getAbdomEnvBaseline(),dataSet->getAbdomEnvVectorTime());
 }
 
 void CGraphBtnAbdominalBeltEnv::setEvents(CEvents * _eP)
@@ -6355,17 +6430,39 @@ void CGraphBtnAbdominalBeltEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEv
 	UpdateWindow();
 }
 
-void CGraphBtnAbdominalBeltEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
+CString CGraphBtnAbdominalBeltEnv::getTimeAndAmplAt(LONG _x, LONG _y)
+{
+	CString s;
+	s = curveA->getStringTimeAndAmplAt(_x, _y, _T(" "));
+
+	if (advancedMode) {
+		CString s2;
+		int nums = s2.LoadString(IDS_BASELINE);
+		s += _T("\n");
+		s += s2;
+		s += _T(" ");
+		s += curveBaseline->getStringAmplAt(_x, _y, _T(" "));
+	}
+	return s;
+}
+
+void CGraphBtnAbdominalBeltEnv::setData(vector<FLOAT>* _p, vector <FLOAT>* _baseline, vector<FLOAT>* _tv)
 {
 	ASSERT(curveA);
+	ASSERT(curveBaseline);
 	curveA->setData(_p, _tv);
+	curveBaseline->setData(_baseline, _tv);
 }
 
 void CGraphBtnAbdominalBeltEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
 	curveA = new CRGLGraphSparse(BELT_SUM);
-
 	ASSERT(curveA);
+
+	curveA->setSparseStepSize(envelopesSparseStep);
+	curveBaseline = new CRGLGraphSparse(ABDOM_BELT_ENV_BASELINE);
+	ASSERT(curveBaseline);
+	curveBaseline->setSparseStepSize(envelopesSparseStep);
 
 	_plotSettings->setCurveTitle(regSubKey, title);
 
@@ -6376,6 +6473,14 @@ void CGraphBtnAbdominalBeltEnv::createCurveSettings(CButtonPlotSettings * _plotS
 	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
 	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
 	curveA->setShow(true);
+
+	//---Curve Env baseline
+	curveBaseline->setTile(plotTile);
+	curveBaseline->setThickness(_plotSettings->getCurveThickness(ABDOM_BELT_ENV_BASELINE));
+	addLayer(curveBaseline);
+	curveBaseline->setColour(_plotSettings->getCurveColour(ABDOM_BELT_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(ABDOM_BELT_ENV_BASELINE));
+	curveBaseline->setShow(true);
 
 	CRGLText* graphTexts = new CRGLText();
 	graphTexts->setTile(plotTile);
@@ -6391,6 +6496,7 @@ CGraphBtnCannulaEnv::CGraphBtnCannulaEnv()
 	dataSet = NULL;
 	regSubKey = CANNULA_ENV;
 	curveA = NULL;
+	curveBaseline = NULL;
 	int nums = title.LoadString(IDS_CANNULA_ENV_TITLE);
 
 	dualPolarity = false;
@@ -6422,6 +6528,10 @@ void CGraphBtnCannulaEnv::updateGraphSettings(void)
 	curveA->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(regSubKey));
 	curveA->setThickness(plotSettings.getCurveThickness(regSubKey));
 
+	curveBaseline->setColour(plotSettings.getCurveColour(CANNULA_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(plotSettings.getCurveTransparencyPerc(CANNULA_ENV_BASELINE));
+	curveBaseline->setThickness(plotSettings.getCurveThickness(CANNULA_ENV_BASELINE));
+
 	render();
 }
 
@@ -6445,7 +6555,7 @@ void CGraphBtnCannulaEnv::setData(CRespBeltDataSet * _dataSet)
 {
 	dataSet = _dataSet;
 	ASSERT(dataSet);
-	setData(dataSet->getCannulaEnvVector(), dataSet->getCannulaEnvVectorTime());
+	setData(dataSet->getCannulaEnvVector(), dataSet->getCannulaEnvBaseline(), dataSet->getCannulaEnvVectorTime());
 }
 
 void CGraphBtnCannulaEnv::setEvents(CEvents * _eP)
@@ -6473,20 +6583,37 @@ void CGraphBtnCannulaEnv::setEventsToShow(UINT _evToShow, bool _onlyShowEvents)
 
 CString CGraphBtnCannulaEnv::getTimeAndAmplAt(LONG _x, LONG _y)
 {
-	return CString();
+	CString s;
+	s = curveA->getStringTimeAndAmplAt(_x, _y, _T(" "));
+
+	if (advancedMode) {
+		CString s2;
+		int nums = s2.LoadString(IDS_BASELINE);
+		s += _T("\n");
+		s += s2;
+		s += _T(" ");
+		s += curveBaseline->getStringAmplAt(_x, _y, _T(" "));
+	}
+	return s;
 }
 
-void CGraphBtnCannulaEnv::setData(vector<FLOAT>* _p, vector<FLOAT>* _tv)
+void CGraphBtnCannulaEnv::setData(vector<FLOAT>* _p, vector <FLOAT>* _baseline, vector<FLOAT>* _tv)
 {
 	ASSERT(curveA);
+	ASSERT(curveBaseline);
 	curveA->setData(_p, _tv);
+	curveBaseline->setData(_baseline, _tv);
 }
 
 void CGraphBtnCannulaEnv::createCurveSettings(CButtonPlotSettings * _plotSettings)
 {
 	curveA = new CRGLGraphSparse(BELT_SUM);
-
 	ASSERT(curveA);
+
+	curveA->setSparseStepSize(envelopesSparseStep);
+	curveBaseline = new CRGLGraphSparse(CANNULA_ENV_BASELINE);
+	ASSERT(curveBaseline);
+	curveBaseline->setSparseStepSize(envelopesSparseStep);
 
 	_plotSettings->setCurveTitle(regSubKey, title);
 
@@ -6497,6 +6624,14 @@ void CGraphBtnCannulaEnv::createCurveSettings(CButtonPlotSettings * _plotSetting
 	curveA->setColour(_plotSettings->getCurveColour(regSubKey));
 	curveA->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(regSubKey));
 	curveA->setShow(true);
+
+	//---Curve Env baseline
+	curveBaseline->setTile(plotTile);
+	curveBaseline->setThickness(_plotSettings->getCurveThickness(CANNULA_ENV_BASELINE));
+	addLayer(curveBaseline);
+	curveBaseline->setColour(_plotSettings->getCurveColour(CANNULA_ENV_BASELINE));
+	curveBaseline->setTransparencyPerc(_plotSettings->getCurveTransparencyPerc(CANNULA_ENV_BASELINE));
+	curveBaseline->setShow(true);
 
 	CRGLText* graphTexts = new CRGLText();
 	graphTexts->setTile(plotTile);
