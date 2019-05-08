@@ -1,8 +1,10 @@
 
 /*!
 * @author		RKH
-* @date		06.06.2017
-* @copyright (C)Spiro Medical AS 2013 - 2017
+* @date			08.05.2019  Now opens for analysis of resp belt data
+* @copyright (C)Spiro Medical AS 2013 - 2019
+
+
 */
 
 #include "StdAfx.h"
@@ -592,7 +594,7 @@ CEvents::CEvents() :
 	torsoAcData		= NULL;
 	oxData			= NULL;
 	bpData			= NULL;
-	cathData		= NULL;
+	catheterData	= NULL;
 	ag200MicData	= NULL;
 	respData		= NULL;
 	mMarkerData		= NULL;
@@ -670,27 +672,47 @@ void CEvents::resetEventsAndReanalyse(void)
 	setVisualEventsToClean();
 }
 
-bool CEvents::addEvent(UINT _type, float _from, float _to)
+bool CEvents::addEvent(UINT _type, float _from, float _to)  /*HERE 1*/
 {
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *flow		= NULL;
+	vector <FLOAT> *flowTime	= NULL;
+	vector <FLOAT> *vpGrad		= NULL;
+	vector <FLOAT> *tpGrad		= NULL;
+	vector <FLOAT> *vpoes		= NULL;		//POES or abdom belt data
+	vector <FLOAT> *poesTime	= NULL;
+	vector <FLOAT> *vpph		= NULL;		//PPH or chest belt data
+	vector <FLOAT> *pphTime		= NULL;
+	
+	if (flags & EVENTS_FLAG_CATHETER_BASED) {
+		flow = catheterData->getFlowVector();
+		flowTime = catheterData->getFlowVectorTime();
+		vpGrad = catheterData->getPgradientVector();
+		tpGrad = catheterData->getPgradientVectorTime();
+		vpoes = catheterData->getPOESEnvVector();
+		poesTime = catheterData->getPOESEnvVectorTime();
+		vpph = catheterData->getPPHEnvVector();
+		pphTime = catheterData->getPPHEnvVectorTime();
+	}
+	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
+		flow		= respData->getCannulaEnvVector();
+		flowTime	= respData->getCannulaEnvVectorTime();
+		vpoes		= respData->getAbdomEnvVector();
+		poesTime	= respData->getAbdomEnvVectorTime();
+		vpph		= respData->getChestEnvVector();
+		pphTime		= respData->getCannulaEnvVectorTime();
+	}
+	else return false;
 
 	switch (_type) {
 	case evntTypeMixed:
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CMixedEvnt *eP = new CMixedEvnt(_from, _to, startRecordingClockTime, bp, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to); 
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
-		eP->doLevelAnalysis();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->doLevelAnalysis();
 		mixedEventArray.Add(eP);
 		sortAndOrganiseMixed();
 		fillStartsAndStopsVector(evntTypeMixed);
@@ -700,7 +722,7 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CCentralEvnt *eP = new CCentralEvnt(_from,_to, startRecordingClockTime, bp, manualDetection); 
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to);
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
@@ -713,11 +735,11 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CObstrEvnt *eP = new CObstrEvnt(_from, _to, startRecordingClockTime, bp, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to);
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
-		eP->doLevelAnalysis();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->doLevelAnalysis();
 		obstrEventArray.Add(eP);
 		sortAndOrganiseObstr();
 		fillStartsAndStopsVector(evntTypeObstr);
@@ -727,7 +749,7 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CHypoEvnt *eP = new CHypoEvnt(_from, _to, startRecordingClockTime, bp, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to);
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
@@ -741,12 +763,12 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CHypoEvnt *eP = new CHypoEvnt(_from, _to, startRecordingClockTime, bp, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to);
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
 		eP->setHypoType(hypoTypeObstr);
-		eP->doLevelAnalysis();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->doLevelAnalysis();
 		hypoEventArrayCurrentP->Add(eP);
 		sortAndOrganiseHypo(detectionCriteria.spO2DropLimit);
 		fillStartsAndStopsVector(evntTypeHypoObstr);
@@ -762,11 +784,11 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 		float reraTo = (_from + _to ) / 2.0f;
 		short bp2 = bpData ? bpData->getPos(reraFrom, reraTo) : posUndefined;
 		CRERAEvnt *eP = new CRERAEvnt(reraFrom, reraTo, startRecordingClockTime, bp2, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, reraFrom, reraTo);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, reraFrom, reraTo);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, reraFrom, reraTo);
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
-		eP->doLevelAnalysis();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->doLevelAnalysis();
 		aP->setRERAEvnt(eP);
 		
 		sortAndOrganiseArousal(detectionCriteria.spO2DropLimit);
@@ -805,7 +827,7 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 	{
 		short bp = bpData ? bpData->getPos(_from, _to) : posUndefined;
 		CSnoringEvnt *eP = new CSnoringEvnt(_from, _to, startRecordingClockTime, bp, manualDetection);
-		gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
+		if (flags & EVENTS_FLAG_CATHETER_BASED) gradientDataToEvent((CEvnt *)eP, vpGrad, tpGrad, _from, _to);
 		flowDataToEvent((CEvnt *)eP, flow, flowTime, _from, _to);
 		bodyDataToEvent(eP, bpData->getBpVector(),
 			bpData->getTimeaxisVector(),
@@ -823,8 +845,8 @@ bool CEvents::addEvent(UINT _type, float _from, float _to)
 		poesEnvDataToEvent((CEvnt *)eP, vpoes, poesTime, _from, _to);
 		pphEnvDataToEvent((CEvnt *)eP, vpph, pphTime, _from, _to);
 		eP->sumUpTimeInPositions();
-		eP->sumUpTimeAtLevels();
-		eP->doLevelAnalysis();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->sumUpTimeAtLevels();
+		if (flags & EVENTS_FLAG_CATHETER_BASED) eP->doLevelAnalysis();
 		snoringEventArray.Add(eP);
 		sortAndOrganiseSnoring();
 		fillStartsAndStopsVector(evntTypeSnoring);
@@ -938,7 +960,7 @@ The following sequence:
 			POES,
 			Resp effort frequency
 */
-void CEvents::getCatheterStatistics(float _editTimeWindowStart, float _editTimeWindowStop,
+void CEvents::getCatheterAndRespDataStatistics(float _editTimeWindowStart, float _editTimeWindowStop,  /*HERE 2*/
 	CStringArray *_title,
 	CStringArray *_unit,
 	CStringArray *_max,
@@ -948,36 +970,60 @@ void CEvents::getCatheterStatistics(float _editTimeWindowStart, float _editTimeW
 	CStringArray *_span,
 	CStringArray *_stdDev)
 {
-	if (!cathData) return;
 
-	vector <FLOAT> *vpoes = cathData->getPOESVector();
-	vector <FLOAT> *vpph = cathData->getPPHVector();
-	vector <FLOAT> *t0 = cathData->getT0Vector();
-	vector <FLOAT> *t1 = cathData->getT1Vector();
-	vector <FLOAT> *cT = cathData->getTimeaxisVector();
-	vector <FLOAT> *f = cathData->getRespFrqVector();
-	vector <FLOAT> *fT = cathData->getRespFrqVectorTime();
+	vector <FLOAT> *vpoes	= NULL;
+	vector <FLOAT> *vpph	= NULL;
+	vector <FLOAT> *t0		= NULL;
+	vector <FLOAT> *t1		= NULL;
+	vector <FLOAT> *cT		= NULL;
+	vector <FLOAT>* cT0		= NULL;
+	vector <FLOAT> *f		= NULL;
+	vector <FLOAT> *fT		= NULL;
+
+	if (flags & EVENTS_FLAG_CATHETER_BASED) {
+		vpoes = catheterData->getPOESVector();
+		vpph = catheterData->getPPHVector();
+		t0 = catheterData->getT0Vector();
+		t1 = catheterData->getT1Vector();
+		cT = catheterData->getTimeaxisVector();
+		f = catheterData->getRespFrqVector();
+		fT = catheterData->getRespFrqVectorTime();
+		ASSERT(cT->size() == t1->size());
+		ASSERT(cT->size() == t0->size());
+		cT0 = cT;
+	}
+	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
+		vpoes = respData->getAbdomVector();
+		vpph = respData->getChestVector();
+		t0 = respData->getCannulaVector();
+		cT = respData->getBeltTime();
+		cT0 = respData->getCannulaTime();
+		f = respData->getRespFrqVector();
+		fT = respData->getRespFrqVectorTime();
+		ASSERT(cT0->size() == t0->size());
+	}
+	else return;
 
 	ASSERT(fT->size() == f->size());
 	ASSERT(cT->size() == vpoes->size());
 	ASSERT(cT->size() == vpph->size());
-	ASSERT(cT->size() == t0->size());
-	ASSERT(cT->size() == t1->size());
 
 	ASSERT(_editTimeWindowStop >= _editTimeWindowStart);
 
 	CString ma, mi, avg, med, span,title,unit,stdDev;
-	getStat(_editTimeWindowStart,_editTimeWindowStop, &title,&unit,t1, cT, &ma, &mi, &avg, &med, &span,&stdDev);
-	_max->Add(ma);
-	_min->Add(mi);
-	_avg->Add(avg);
-	_median->Add(med);
-	_span->Add(span);
-	_title->Add(title);
-	_unit->Add(unit);
-	_stdDev->Add(stdDev);
+	if (flags & EVENTS_FLAG_CATHETER_BASED) {
+		getStat(_editTimeWindowStart, _editTimeWindowStop, &title, &unit, t1, cT, &ma, &mi, &avg, &med, &span, &stdDev);
+		_max->Add(ma);
+		_min->Add(mi);
+		_avg->Add(avg);
+		_median->Add(med);
+		_span->Add(span);
+		_title->Add(title);
+		_unit->Add(unit);
+		_stdDev->Add(stdDev);
+	}
 
-	getStat(_editTimeWindowStart, _editTimeWindowStop, &title,&unit,t0, cT, &ma, &mi, &avg, &med, &span,&stdDev);
+	getStat(_editTimeWindowStart, _editTimeWindowStop, &title,&unit,t0, cT0, &ma, &mi, &avg, &med, &span,&stdDev);
 	_max->Add(ma);
 	_min->Add(mi);
 	_avg->Add(avg);
@@ -4102,7 +4148,7 @@ _to: Ending at this time
 _leftTimeLimit: This is the start of the graphs
 _rightTimeLimit: This is the end of the graphs
 */
-bool CEvents::visualEditAddSnoring(UINT _eventType, float _from, float _to, float _leftTimeLimit, float _rightTimeLimit)
+bool CEvents::visualEditAddSnoring(UINT _eventType, float _from, float _to, float _leftTimeLimit, float _rightTimeLimit) /*HERE*/
 {
 	ASSERT(evntTypeSnoring == _eventType);
 
@@ -4134,19 +4180,19 @@ bool CEvents::visualEditAddSnoring(UINT _eventType, float _from, float _to, floa
 		if (!(evntTypeAllWithLevel & _eventType))
 			return true;
 
-		if (!cathData) {
+		if (!catheterData) {
 			transform(iT0, iT1, iT0, offAHLevelAll);
 			transform(iT0, iT1, iT0, orSnoringLevelTypeUndef);
 			return true;
 		}
-		if (!cathData->getPgradientVector()) {
+		if (!catheterData->getPgradientVector()) {
 			transform(iT0, iT1, iT0, offAHLevelAll);
 			transform(iT0, iT1, iT0, orSnoringLevelTypeUndef);
 			return true;
 		}
-		
-		vector <FLOAT> *pgrad = cathData->getPgradientVector();
-		vector <FLOAT> *pgradTime = cathData->getPgradientVectorTime();
+		 
+		vector <FLOAT> *pgrad = catheterData->getPgradientVector();		/*HERE*/
+		vector <FLOAT> *pgradTime = catheterData->getPgradientVectorTime();
 
 		//---Remove level info
 		transform(iT0, iT1, iT0, offSnoringLevelAll);
@@ -4181,12 +4227,12 @@ bool CEvents::visualEditSetLevel(UINT _eventType, float _time, UINT _level)
 	return false;
 }
 
-UINT CEvents::findLevelInTimeWindow(float _from, float _to)
+UINT CEvents::findLevelInTimeWindow(float _from, float _to)  /*HERE*/
 {
-	if (!cathData) return levelTypeUndef;
-	vector <FLOAT> *pg = cathData->getPgradientVector();
+	if (!catheterData) return levelTypeUndef;
+	vector <FLOAT> *pg = catheterData->getPgradientVector();
 	if (!pg) return levelTypeUndef;
-	vector <FLOAT> *pgt = cathData->getPgradientVectorTime();
+	vector <FLOAT> *pgt = catheterData->getPgradientVectorTime();
 
 	ASSERT(pg->size() == pgt->size());
 
@@ -7480,9 +7526,9 @@ void CEvents::setEditedDetectionCriteria(DETECTION_CRITERIA _dt, bool _onlySpO2D
 	}
 }
 
-void CEvents::recomputeFlowAndBreathingEfficiency(void)
+void CEvents::recomputeFlowAndBreathingEfficiency(void)  /*HERE*/
 {
-	if (cathData) cathData->computeFlowAndBreathingEfficiencyForCatheter(detectionCriteria.flowDetectBalanceFactor);
+	if (catheterData) catheterData->computeFlowAndBreathingEfficiencyForCatheter(detectionCriteria.flowDetectBalanceFactor);
 }
 
 /*
@@ -8241,11 +8287,16 @@ void CEvents::setData(	CBatteryDataSet		*_battData		,
 	torsoAcData					= _acTorsoData		;
 	oxData						= _oxData			;	
 	bpData						= _bpData			;	
-	cathData					= _cathData			;	
+	catheterData				= _cathData			;
 	ag200MicData				= _ag200MicData		;
 	startRecordingClockTime		= _startRecording	;
 	respData					= _respData			;
 	mMarkerData					= _manMarkerData	;
+
+	if ((respData->getSize() > 0) && (0 == catheterData->getSize()))
+		flags |= EVENTS_FLAG_BELTS_AND_CANNULA_BASED;
+	else if ((0 == respData->getSize()) && (catheterData->getSize() > 0))
+		flags |= EVENTS_FLAG_CATHETER_BASED;
 }
 
 bool CEvents::getIsVisualEventEditingActive(void)
@@ -8311,7 +8362,7 @@ void CEvents::findEffectiveStartAndStop(void)
 	stops.push_back(torsoAcData->getStop());
 	stops.push_back(oxData->getStop());
 	stops.push_back(bpData->getStop());
-	stops.push_back(cathData->getStop());
+	stops.push_back(catheterData->getStop());
 	stops.push_back(ag200MicData->getStop());
 	stops.push_back(respData->getStop());
 	sort(stops.begin(),stops.end());
@@ -10672,10 +10723,10 @@ void CEvents::fillInEventTimeLineVectorForType(int _type, UINT _levelType,float 
 /*
 Description: Asks CCathData set to fill in swallow events (start and stop) and adds additional info
 */
-bool CEvents::analyseSwallow(void)
+bool CEvents::analyseSwallow(void)  /*HERE*/
 {
-	cathData->resetSwallow();
-	cathData->fillSwallowArray(&swallowEventArray);
+	catheterData->resetSwallow();
+	catheterData->fillSwallowArray(&swallowEventArray);
 	int num = swallowEventArray.GetCount();
 	for (int i = 0; i < num; i++) {
 		CSwallowEvnt *eP = swallowEventArray.GetAt(i);
@@ -10726,7 +10777,7 @@ bool CEvents::doAnalyse(bool _findStartAndStop /* = true */)
 	}
 	if (_findStartAndStop) {
 		findEffectiveStartAndStop();							// Will set total sleep time (first estimate)
-		addExcludedEventsFromTimeWindowVector(cathData->getInvalidTimeWindowsVector(),detectionCriteria.spO2DropLimit);
+		addExcludedEventsFromTimeWindowVector(catheterData->getInvalidTimeWindowsVector(),detectionCriteria.spO2DropLimit);  /*HERE*/
 	}
 	resetEventTimelineVector();
 	resetSnoringVector();
@@ -11472,12 +11523,12 @@ float CEvents::getMedian(vector <FLOAT> *_v)
 /*
 Description: Tests if BOTH T0 and T1 increases
 */
-bool CEvents::getDoesFlowRiseOld(float _from, float _to)
+bool CEvents::getDoesFlowRiseOld(float _from, float _to)   /*HERE*/
 {
-	vector <FLOAT> *t0env = cathData->getT0EnvVector();
-	vector <FLOAT> *t1env = cathData->getT1EnvVector();
-	vector <FLOAT> *t0envTime = cathData->getT0EnvVectorTime();
-	vector <FLOAT> *t1envTime = cathData->getT1EnvVectorTime();
+	vector <FLOAT> *t0env = catheterData->getT0EnvVector();
+	vector <FLOAT> *t1env = catheterData->getT1EnvVector();
+	vector <FLOAT> *t0envTime = catheterData->getT0EnvVectorTime();
+	vector <FLOAT> *t1envTime = catheterData->getT1EnvVectorTime();
 	if (0 == t0env->size()) return false;
 	if (0 == t1env->size()) return false;
 
@@ -11512,11 +11563,11 @@ bool CEvents::getDoesFlowRiseOld(float _from, float _to)
 /*
 Description: Tests if the flow signal
 */
-bool CEvents::getDoesFlowRise(float _from, float _to)
+bool CEvents::getDoesFlowRise(float _from, float _to)  /*HERE*/
 {
-	vector <FLOAT> *flow = cathData->getBFlowVector();
+	vector <FLOAT> *flow = catheterData->getBFlowVector();
 	
-	vector <FLOAT> *flowTime = cathData->getBFlowVectorTime();
+	vector <FLOAT> *flowTime = catheterData->getBFlowVectorTime();
 	if (0 == flow->size()) return false;
 
 	ASSERT(flowTime->size() == flow->size());
@@ -11543,23 +11594,23 @@ bool CEvents::getDoesFlowRise(float _from, float _to)
 Description: Finds all arousals and rera - independent of Spo2 drop limit and hypopnea criterion. 
 These will be split later, when the events are removed due to collision with hypopnea.
 */
-void CEvents::doRERAandArousalAnalysis(void)
+void CEvents::doRERAandArousalAnalysis(void)  /*HERE*/
 {
-	vector <FLOAT> *admittance = cathData->getAdmittanceVector();
-	vector <FLOAT> *admittanceTime = cathData->getAdmittanceVectorTime();
+	vector <FLOAT> *admittance = catheterData->getAdmittanceVector();
+	vector <FLOAT> *admittanceTime = catheterData->getAdmittanceVectorTime();
 	vector <FLOAT> *pulseRate = oxData->getPulseRateVector();
 	vector <FLOAT> *pulseRateTime = oxData->getTimeaxisVector();
-	vector <FLOAT> *respFrq = cathData->getRespFrqVector();
-	vector <FLOAT> *respFrqTime = cathData->getRespFrqVectorTime();
-	vector <FLOAT> *poes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *pph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *respFrq = catheterData->getRespFrqVector();
+	vector <FLOAT> *respFrqTime = catheterData->getRespFrqVectorTime();
+	vector <FLOAT> *poes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *pph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
-	vector <FLOAT> *bFlow = cathData->getBFlowVector();
-	vector <FLOAT> *bFlowTime = cathData->getBFlowVectorTime();
-	vector <FLOAT> *bEff = cathData->getBEfficiencyVector();
-	vector <FLOAT> *bEffTime = cathData->getBEfficiencyVectorTime();
+	vector <FLOAT> *bFlow = catheterData->getBFlowVector();
+	vector <FLOAT> *bFlowTime = catheterData->getBFlowVectorTime();
+	vector <FLOAT> *bEff = catheterData->getBEfficiencyVector();
+	vector <FLOAT> *bEffTime = catheterData->getBEfficiencyVectorTime();
 
 	ASSERT(admittance->size() == admittanceTime->size());
 	ASSERT(pulseRate->size() == pulseRateTime->size());
@@ -11711,11 +11762,11 @@ void CEvents::doRERAandArousalAnalysis(void)
 									startRecordingClockTime, bpos);
 								lastRERAStopTime = eva->getTo();
 
-								flowDataToEvent(reraP, cathData->getFlowVector(),
-									cathData->getFlowVectorTime(),
+								flowDataToEvent(reraP, catheterData->getFlowVector(),		/*HERE*/
+									catheterData->getFlowVectorTime(),
 									*reraSeekStartIt, *reraSeekEndIt);
-								gradientDataToEvent(reraP, cathData->getPgradientVector(),
-									cathData->getPgradientVectorTime(),
+								gradientDataToEvent(reraP, catheterData->getPgradientVector(),  /*HERE*/
+									catheterData->getPgradientVectorTime(),
 									*reraSeekStartIt, *reraSeekEndIt);
 								poesEnvDataToEvent((CEvnt *)reraP, poes, poesTime, *reraSeekStartIt, *reraSeekEndIt);
 								pphEnvDataToEvent((CEvnt *)reraP, pph, pphTime, *reraSeekStartIt, *reraSeekEndIt);
@@ -11982,13 +12033,13 @@ void CEvents::doSnoringAnalysis(void)
 				endTime = *timeIt;
 				short bpos = bpData->getSize() ? bpData->getPos(startTime,endTime) : posUndefined;
 				CSnoringEvnt *ev = new CSnoringEvnt(startTime,endTime,startRecordingClockTime,bpos);
-				flowDataToEvent(ev,		cathData->getFlowVector(),
-										cathData->getFlowVectorTime(),
+				flowDataToEvent(ev, catheterData->getFlowVector(),			/*HERE*/
+									catheterData->getFlowVectorTime(),
+									startTime,endTime);
+				gradientDataToEvent(ev,	catheterData->getPgradientVector(),	/*HERE*/
+										catheterData->getPgradientVectorTime(),
 										startTime,endTime);
-				gradientDataToEvent(ev,	cathData->getPgradientVector(),
-										cathData->getPgradientVectorTime(),
-										startTime,endTime);
-				bodyDataToEvent(ev,		bpData->getBpVector(),
+				bodyDataToEvent(ev,		bpData->getBpVector(),		
 										bpData->getTimeaxisVector(),
 										startTime,endTime);	
 				contactMicDataToEvent(ev,	cmData->getCmVector(),
@@ -12000,9 +12051,9 @@ void CEvents::doSnoringAnalysis(void)
 										amData->getAm4Vector(),
 										amData->getAmSumVector(),
 										amData->getTimeaxisVector(),
-										startTime,endTime);
-				poesEnvDataToEvent((CEvnt *)ev, cathData->getPOESEnvVector(), cathData->getPOESEnvVectorTime(), startTime, endTime);
-				pphEnvDataToEvent((CEvnt *)ev, cathData->getPPHEnvVector(), cathData->getPPHEnvVectorTime(), startTime, endTime);
+										startTime,endTime);  /*HERE*/
+				poesEnvDataToEvent((CEvnt *)ev, catheterData->getPOESEnvVector(), catheterData->getPOESEnvVectorTime(), startTime, endTime);
+				pphEnvDataToEvent((CEvnt *)ev, catheterData->getPPHEnvVector(), catheterData->getPPHEnvVectorTime(), startTime, endTime);
 				ev->doLevelAnalysis();
 				ev->sumUpTimeInPositions();
 				ev->sumUpTimeAtLevels();
@@ -12021,11 +12072,11 @@ void CEvents::doSnoringAnalysis(void)
 		endTime = *max_element(snoringTime->begin(),snoringTime->end());
 		short bpos = bpData->getSize() ? bpData->getPos(startTime,endTime) : posUndefined;
 		CSnoringEvnt *ev = new CSnoringEvnt(startTime,endTime,startRecordingClockTime,bpos);
-		flowDataToEvent(ev,	cathData->getFlowVector(),
-			cathData->getFlowVectorTime(),
+		flowDataToEvent(ev, catheterData->getFlowVector(),  /*HERE*/
+			catheterData->getFlowVectorTime(),
 			startTime,endTime);
-		gradientDataToEvent(ev,	cathData->getPgradientVector(),
-			cathData->getPgradientVectorTime(),
+		gradientDataToEvent(ev, catheterData->getPgradientVector(),		/*HERE*/
+			catheterData->getPgradientVectorTime(),
 			startTime,endTime);
 		bodyDataToEvent(ev, bpData->getBpVector(),
 			bpData->getTimeaxisVector(),
@@ -12039,9 +12090,9 @@ void CEvents::doSnoringAnalysis(void)
 			amData->getAm4Vector(),
 			amData->getAmSumVector(),
 			amData->getTimeaxisVector(),
-			startTime, endTime);
-		poesEnvDataToEvent((CEvnt *)ev, cathData->getPOESEnvVector(), cathData->getPOESEnvVectorTime(), startTime, endTime);
-		pphEnvDataToEvent((CEvnt *)ev, cathData->getPPHEnvVector(), cathData->getPPHEnvVectorTime(), startTime, endTime);
+			startTime, endTime);			/*HERE*/
+		poesEnvDataToEvent((CEvnt *)ev, catheterData->getPOESEnvVector(), catheterData->getPOESEnvVectorTime(), startTime, endTime);
+		pphEnvDataToEvent((CEvnt *)ev, catheterData->getPPHEnvVector(), catheterData->getPPHEnvVectorTime(), startTime, endTime);
 		ev->doLevelAnalysis();
 		ev->sumUpTimeInPositions();
 		ev->sumUpTimeAtLevels();
@@ -12830,18 +12881,18 @@ void CEvents::fillDesatEventArrayFromEventTimelineVector(void)
 	}
 }
 
-void CEvents::fillMixedEventArrayFromEventTimelineVector(void)
+void CEvents::fillMixedEventArrayFromEventTimelineVector(void)   /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	for (int i = mixedEventArray.GetCount() - 1; i >= 0; --i) {
 		CMixedEvnt *eP = mixedEventArray.GetAt(i);
@@ -12883,18 +12934,18 @@ void CEvents::fillMixedEventArrayFromEventTimelineVector(void)
 	}
 }
 
-void CEvents::fillCentralEventArrayFromEventTimelineVector(void)
+void CEvents::fillCentralEventArrayFromEventTimelineVector(void)   /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	for (int i = centralEventArray.GetCount() - 1; i >= 0; --i) {
 		CCentralEvnt *eP = centralEventArray.GetAt(i);
@@ -12930,18 +12981,18 @@ void CEvents::fillCentralEventArrayFromEventTimelineVector(void)
 	}
 }
 
-void CEvents::fillObstrEventArrayFromEventTimelineVector(void)
+void CEvents::fillObstrEventArrayFromEventTimelineVector(void)  /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	for (int i = obstrEventArray.GetCount() - 1; i >= 0; --i) {
 		CObstrEvnt *eP = obstrEventArray.GetAt(i);
@@ -12985,18 +13036,18 @@ void CEvents::fillObstrEventArrayFromEventTimelineVector(void)
 	}
 }
 
-void CEvents::fillHypoEventArrayFromEventTimelineVector(void)
+void CEvents::fillHypoEventArrayFromEventTimelineVector(void)		/*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	CArray <CHypoEvnt *, CHypoEvnt *>	*hArrayP = NULL;
 	if (detectionCriteria.spO2DropLimit == spO2DropLimit3) hArrayP = &hypoEventArrayDesat3;
@@ -13112,18 +13163,18 @@ void CEvents::fillSwallowArrayFromEventTimelineVector(void)
 	}
 }
 
-void CEvents::fillReraArrayFromEventTimelineVector(void)
+void CEvents::fillReraArrayFromEventTimelineVector(void)  /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 	
 	// Both Arousals and RERAs
 	CArray <CArousalEvnt *, CArousalEvnt *> *aArrayP = NULL;
@@ -13196,16 +13247,16 @@ Description: The event time line vector is the result of editing
 
 From the event timeline vector, the snoring event array is re-generated
 */
-void CEvents::fillSnoringEventArrayFromEventTimeLineVector(void)
+void CEvents::fillSnoringEventArrayFromEventTimeLineVector(void)  /*HERE*/
 {
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	for (int i = snoringEventArray.GetCount() - 1; i >= 0; --i) {
 		CSnoringEvnt *sE = snoringEventArray.GetAt(i);
@@ -14843,18 +14894,18 @@ bool CEvents::flowDataToEvent(CEvnt *_eV,vector <FLOAT> *_v,vector <FLOAT> *_t,F
 Description:
 Fill up a vector with flags plus the corresponding time vector. This is used for detection of apneas and hypopneas
 */
-void CEvents::setupHelpEventVector(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP,
+void CEvents::setupHelpEventVector(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP,  /*HERE*/
 									float _startAnalysisTime,float _stopAnalysisTime)
 {
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *flowBaseline = cathData->getFlowBaselineVector();
-	vector <FLOAT> *poesBaseline = cathData->getPOESBaselineVector();
-	vector <FLOAT> *pphBaseline = cathData->getPPHBaselineVector();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *flow = cathData->getFlowVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *flowBaseline = catheterData->getFlowBaselineVector();
+	vector <FLOAT> *poesBaseline = catheterData->getPOESBaselineVector();
+	vector <FLOAT> *pphBaseline = catheterData->getPPHBaselineVector();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
 
 	//---Score central, mixed, obstructive, hypopnea, apnea. Do not care if overlap
 	/*
@@ -14945,20 +14996,20 @@ void CEvents::setupHelpEventVector(vector <FLOAT> *_helpVTimeP, vector <unsigned
 
 }
 
-bool CEvents::testIfDataOKforAnalysis(float *_startAnalysisTime, float *_stopAnalysisTime)
+bool CEvents::testIfDataOKforAnalysis(float *_startAnalysisTime, float *_stopAnalysisTime)  /*HERE*/
 {
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
 
-	vector <FLOAT> *flowBaseline = cathData->getFlowBaselineVector();
-	vector <FLOAT> *poesBaseline = cathData->getPOESBaselineVector();
-	vector <FLOAT> *pphBaseline = cathData->getPPHBaselineVector();
+	vector <FLOAT> *flowBaseline = catheterData->getFlowBaselineVector();
+	vector <FLOAT> *poesBaseline = catheterData->getPOESBaselineVector();
+	vector <FLOAT> *pphBaseline = catheterData->getPPHBaselineVector();
 
 	if (minVectorLengthForAnalysis >= vpoes->size()) return false;
 	if (minVectorLengthForAnalysis >= vpph->size()) return false;
@@ -14987,22 +15038,22 @@ bool CEvents::testIfDataOKforAnalysis(float *_startAnalysisTime, float *_stopAna
 /*
 Description: Find findMixCentralObstr Apnea
 */
-bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP)
+bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP)  /*HERE*/
 {
-	if (!cathData) return false;
+	if (!catheterData) return false;
 
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
 
-	vector <FLOAT> *flowBaseline = cathData->getFlowBaselineVector();
-	vector <FLOAT> *poesBaseline = cathData->getPOESBaselineVector();
-	vector <FLOAT> *pphBaseline = cathData->getPPHBaselineVector();
+	vector <FLOAT> *flowBaseline =	catheterData->getFlowBaselineVector();
+	vector <FLOAT> *poesBaseline =	catheterData->getPOESBaselineVector();
+	vector <FLOAT> *pphBaseline =	catheterData->getPPHBaselineVector();
 
 	//---Find apnea (no flow) 
 	int samplesApneaDur = (int)(APNEA_DEFAULT_DURATION / FILTER_DESIGN_SAMPLE_INTERVAL);
@@ -15088,21 +15139,21 @@ bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsi
 	return true;
 }
 
-bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP,int _spO2DropLimit)
+bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP,int _spO2DropLimit)  /*HERE*/
 {
 	CArray <CHypoEvnt *, CHypoEvnt *> *hP = NULL;
 	if (spO2DropLimit3 == _spO2DropLimit) hP = &hypoEventArrayDesat3;
 	else if (spO2DropLimit4 == _spO2DropLimit) hP = &hypoEventArrayDesat4;
 	else return false;
 
-	vector <FLOAT> *flow = cathData->getFlowVector();
-	vector <FLOAT> *flowTime = cathData->getFlowVectorTime();
-	vector <FLOAT> *vpGrad = cathData->getPgradientVector();
-	vector <FLOAT> *tpGrad = cathData->getPgradientVectorTime();
-	vector <FLOAT> *vpoes = cathData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = cathData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *flow = catheterData->getFlowVector();
+	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
+	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
+	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
+	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
+	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
+	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
 
 	int samplesApneaDur = (int)(APNEA_DEFAULT_DURATION / FILTER_DESIGN_SAMPLE_INTERVAL);
 	int samplesHypopneaDur = samplesApneaDur * 2 / 3;	// Shorter because of detection and 
@@ -15655,16 +15706,16 @@ int CEvents::getLevel(float _gradient)
 	else return levelTypeMulti;
 }
 
-void CEvents::POESEnvBinning(void)
+void CEvents::POESEnvBinning(void)		/*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	if (1 >= cathData->getSize()) return;
+	if (1 >= catheterData->getSize()) return;
 
-	vector <FLOAT> *_v = cathData->getPOESEnvVector();
-	vector <FLOAT> *_vt = cathData->getPOESEnvVectorTime();
-	vector <FLOAT> *_grad = cathData->getPgradientVector();
-	vector <FLOAT> *_gradt = cathData->getPgradientVectorTime();
+	vector <FLOAT> *_v =		catheterData->getPOESEnvVector();
+	vector <FLOAT> *_vt =		catheterData->getPOESEnvVectorTime();
+	vector <FLOAT> *_grad =		catheterData->getPgradientVector();
+	vector <FLOAT> *_gradt =	catheterData->getPgradientVectorTime();
 
 	if (0 == _vt->size()) return;
 
@@ -15724,14 +15775,14 @@ void CEvents::POESEnvBinning(void)
 	}
 }
 
-void CEvents::POESEnvBinningForSnoring(void)
+void CEvents::POESEnvBinningForSnoring(void)  /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	if (1 >= cathData->getSize()) return;
+	if (1 >= catheterData->getSize()) return;
 
-	vector <FLOAT> *_v = cathData->getPOESEnvVector();
-	vector <FLOAT> *_vt = cathData->getPOESEnvVectorTime();
+	vector <FLOAT> *_v = catheterData->getPOESEnvVector();
+	vector <FLOAT> *_vt = catheterData->getPOESEnvVectorTime();
 
 	if (0 == _vt->size()) return;
 
@@ -15797,16 +15848,16 @@ void CEvents::POESEnvBinningForSnoring(void)
 	}
 }
 
-void CEvents::PPHEnvBinning(void)
+void CEvents::PPHEnvBinning(void)  /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	if (1 >= cathData->getSize()) return;
+	if (1 >= catheterData->getSize()) return;
 
-	vector <FLOAT> *_v = cathData->getPPHEnvVector();
-	vector <FLOAT> *_vt = cathData->getPPHEnvVectorTime();
-	vector <FLOAT> *_grad = cathData->getPgradientVector();
-	vector <FLOAT> *_gradt = cathData->getPgradientVectorTime();
+	vector <FLOAT> *_v = catheterData->getPPHEnvVector();
+	vector <FLOAT> *_vt = catheterData->getPPHEnvVectorTime();
+	vector <FLOAT> *_grad = catheterData->getPgradientVector();
+	vector <FLOAT> *_gradt = catheterData->getPgradientVectorTime();
 
 	if (0 == _vt->size()) return;
 
@@ -15866,14 +15917,14 @@ void CEvents::PPHEnvBinning(void)
 	}
 }
 
-void CEvents::PPHEnvBinningForSnoring(void)
+void CEvents::PPHEnvBinningForSnoring(void)  /*HERE*/
 {
-	if (!cathData) return;
+	if (!catheterData) return;
 
-	if (1 >= cathData->getSize()) return;
+	if (1 >= catheterData->getSize()) return;
 
-	vector <FLOAT> *_v = cathData->getPPHEnvVector();
-	vector <FLOAT> *_vt = cathData->getPPHEnvVectorTime();
+	vector <FLOAT> *_v = catheterData->getPPHEnvVector();
+	vector <FLOAT> *_vt = catheterData->getPPHEnvVectorTime();
 
 	if (0 == _vt->size()) return;
 

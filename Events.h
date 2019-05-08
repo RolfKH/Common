@@ -1440,7 +1440,7 @@ public:
 	bool getLeftToUndo(void);
 	float getAwakeTime(float _from, float _to);
 	float getExcludedTime(float _from, float _to);
-	void getCatheterStatistics(float _editTimeWindowStart, float _editTimeWindowStop,
+	void getCatheterAndRespDataStatistics(float _editTimeWindowStart, float _editTimeWindowStop,
 		CStringArray *_title,
 		CStringArray *_unit,
 		CStringArray *_max,
@@ -1778,7 +1778,7 @@ protected:
 	CActimeterDataSet		*torsoAcData;
 	COximeterDataSet		*oxData;
 	CBodyPosDataSet			*bpData;
-	CCatheterDataSet		*cathData;
+	CCatheterDataSet		*catheterData;
 	CAG200MicDataSet		*ag200MicData;
 	CRespBeltDataSet		*respData;
 	CManualMarkerSet		*mMarkerData;
