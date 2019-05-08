@@ -166,15 +166,17 @@ typedef struct anEventWithLevel {
 } EVENT_TYPE_AND_LEVEL;
 
 //---Flags used for events file
-#define EVENT_TYPE_NONE					0x0000
-#define EVENT_TYPE_AWAKE				0x0001
-#define EVENT_TYPE_SNORING				0x0002
-#define EVENT_TYPE_SWALLOW				0x0004
-#define EVENT_TYPE_RESPIRATORY			0x0008
-#define EVENT_TYPE_AROUSAL				0x0010
+//NOT USED ANYMORE---  #define EVENT_TYPE_NONE					0x0000
+//NOT USED ANYMORE---  #define EVENT_TYPE_AWAKE					0x0001
+//NOT USED ANYMORE---  #define EVENT_TYPE_SNORING				0x0002
+//NOT USED ANYMORE---  #define EVENT_TYPE_SWALLOW				0x0004
+//NOT USED ANYMORE---  #define EVENT_TYPE_RESPIRATORY			0x0008
+//NOT USED ANYMORE---  #define EVENT_TYPE_AROUSAL				0x0010
 
-#define EVENTS_FLAG_NONE				0x0000
-#define EVENTS_FLAG_DO_AWAKE			0x0001
+#define EVENTS_FLAG_NONE						0x0000
+#define EVENTS_FLAG_DO_AWAKE					0x0001
+#define EVENTS_FLAG_CATHETER_BASED				0x0002
+#define EVENTS_FLAG_BELTS_AND_CANNULA_BASED		0x0004
 
 #define EVENT_TIMELINE_TIME_INTERVAL				0.1f	// s
 #define EVENT_TIMELINE_TIME_INTERVAL_INVERSE		10.0f	// s-1  Multiply is faster than divide
@@ -980,8 +982,8 @@ public:
 	virtual bool considerIfInExcludeWindow(float _excludedStart, float _excludedStop);
 	void setRecordingStartTimeOfDay(COleDateTime _startTOD);
 	void setBodyPos(short _bodyPos);
-	int getDetectionSource(void);
-	void setDetectionSource(int _detSource);
+	int getDetectionSourceManOrAuto(void);
+	void setDetectionSourceManOrAuto(int _detSource);
 	bool computePoesData(float *_min, float *_max, float *_avg, float *_median);
 	bool computePphData(float *_min, float *_max, float *_avg, float *_median);
 protected:
@@ -1583,6 +1585,7 @@ protected:
 
 	CDocument *docP;
 	bool dirtyFlag;
+	int flags;
 
 	void changeEventTypeDuringEdit(CEvnt *_evnt, int _toType, int _spO2DropLimit = noSpO2DropLimit);
 	int findLevelFromLevelVector(vector <int>::iterator _from, vector <int>::iterator _to);

@@ -577,6 +577,7 @@ CEvents::CEvents() :
 	doNotSaveFlag(false),
 	visualEventEditingIsActive(false),
 	editingViaDialogIsActive(false),
+	flags(EVENTS_FLAG_NONE),
 	statePointer(-1)
 {	
 	eventsBeingVisuallyEdited = evntTypeExcluded;
@@ -2089,7 +2090,6 @@ bool CEvents::Serialize(CArchive& ar,CString _fileID)
 		ar << minorVersion;
 		ar << _fileID;
 
-		int flags = EVENTS_FLAG_NONE;
 		if (doAwakeFromCmdLine) flags |= EVENTS_FLAG_DO_AWAKE;
 
 		ar << flags;
@@ -2208,7 +2208,6 @@ bool CEvents::Serialize(CArchive& ar,CString _fileID)
 		}
 
 		//---Flags must be the same for the analysis to be valid
-		int flags;
 		ar >> flags;
 		if (doAwakeFromCmdLine && !(flags & EVENTS_FLAG_DO_AWAKE))
 			return false;
@@ -5590,7 +5589,7 @@ bool CEvents::copyMixedEventTo(CMixedEvnt *_source, CEvnt *_dest)
 	case evntTypeCentral:
 		((CEvnt *) _source)->copyTo((CCentralEvnt *) _dest);
 		_dest->setEventType(evntTypeCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5598,7 +5597,7 @@ bool CEvents::copyMixedEventTo(CMixedEvnt *_source, CEvnt *_dest)
 	case evntTypeImported:
 		((CEvnt *)_source)->copyTo((CImportedEvnt *)_dest);
 		_dest->setEventType(evntTypeImported);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5606,7 +5605,7 @@ bool CEvents::copyMixedEventTo(CMixedEvnt *_source, CEvnt *_dest)
 	case evntTypeObstr:
 		((CEvnt *)_source)->copyTo((CObstrEvnt *) _dest);
 		_dest->setEventType(evntTypeObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5616,7 +5615,7 @@ bool CEvents::copyMixedEventTo(CMixedEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5626,7 +5625,7 @@ bool CEvents::copyMixedEventTo(CMixedEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5659,7 +5658,7 @@ bool CEvents::copyCentralEventTo(CCentralEvnt *_source, CEvnt *_dest)
 	case evntTypeMixed:
 		((CEvnt *)_source)->copyTo((CMixedEvnt *) _dest);
 		_dest->setEventType(evntTypeMixed);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		((CMixedEvnt *)_dest)->doLevelAnalysis();
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
@@ -5668,7 +5667,7 @@ bool CEvents::copyCentralEventTo(CCentralEvnt *_source, CEvnt *_dest)
 	case evntTypeImported:
 		((CEvnt *)_source)->copyTo((CImportedEvnt *)_dest);
 		_dest->setEventType(evntTypeImported);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5680,7 +5679,7 @@ bool CEvents::copyCentralEventTo(CCentralEvnt *_source, CEvnt *_dest)
 	case evntTypeObstr:
 		((CEvnt *)_source)->copyTo((CObstrEvnt *) _dest);
 		_dest->setEventType(evntTypeObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		((CObstrEvnt *)_dest)->doLevelAnalysis();
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
@@ -5691,7 +5690,7 @@ bool CEvents::copyCentralEventTo(CCentralEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		((CHypoEvnt *)_dest)->doLevelAnalysis();
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
@@ -5702,7 +5701,7 @@ bool CEvents::copyCentralEventTo(CCentralEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5735,7 +5734,7 @@ bool CEvents::copyObstrEventTo(CObstrEvnt *_source, CEvnt *_dest)
 	case evntTypeMixed:
 		((CEvnt *)_source)->copyTo((CMixedEvnt *) _dest);
 		_dest->setEventType(evntTypeMixed);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5743,7 +5742,7 @@ bool CEvents::copyObstrEventTo(CObstrEvnt *_source, CEvnt *_dest)
 	case evntTypeCentral:
 		((CEvnt *)_source)->copyTo((CCentralEvnt *) _dest);
 		_dest->setEventType(evntTypeCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5751,7 +5750,7 @@ bool CEvents::copyObstrEventTo(CObstrEvnt *_source, CEvnt *_dest)
 	case evntTypeImported:
 		((CEvnt *)_source)->copyTo((CImportedEvnt *)_dest);
 		_dest->setEventType(evntTypeImported);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5765,7 +5764,7 @@ bool CEvents::copyObstrEventTo(CObstrEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5775,7 +5774,7 @@ bool CEvents::copyObstrEventTo(CObstrEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5804,7 +5803,7 @@ bool CEvents::copyImportedEventTo(CImportedEvnt * _source, CEvnt * _dest)
 	case evntTypeMixed:
 		((CEvnt *)_source)->copyTo((CMixedEvnt *)_dest);
 		_dest->setEventType(evntTypeMixed);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5812,7 +5811,7 @@ bool CEvents::copyImportedEventTo(CImportedEvnt * _source, CEvnt * _dest)
 	case evntTypeCentral:
 		((CEvnt *)_source)->copyTo((CCentralEvnt *)_dest);
 		_dest->setEventType(evntTypeCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5824,7 +5823,7 @@ bool CEvents::copyImportedEventTo(CImportedEvnt * _source, CEvnt * _dest)
 	case evntTypeObstr:
 		((CEvnt *)_source)->copyTo((CObstrEvnt *)_dest);
 		_dest->setEventType(evntTypeObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5834,7 +5833,7 @@ bool CEvents::copyImportedEventTo(CImportedEvnt * _source, CEvnt * _dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5844,7 +5843,7 @@ bool CEvents::copyImportedEventTo(CImportedEvnt * _source, CEvnt * _dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5877,7 +5876,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 	case evntTypeMixed:
 		((CEvnt *)_source)->copyTo((CMixedEvnt *) _dest);
 		_dest->setEventType(evntTypeMixed);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		((CMixedEvnt *)_dest)->doLevelAnalysis();
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
@@ -5886,7 +5885,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 	case evntTypeCentral:
 		((CEvnt *)_source)->copyTo((CCentralEvnt *) _dest);
 		_dest->setEventType(evntTypeCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5894,7 +5893,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 	case evntTypeImported:
 		((CEvnt *)_source)->copyTo((CImportedEvnt *)_dest);
 		_dest->setEventType(evntTypeImported);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5902,7 +5901,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 	case evntTypeObstr:
 		((CEvnt *)_source)->copyTo((CObstrEvnt *)_dest);
 		_dest->setEventType(evntTypeObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -5912,7 +5911,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoObstr);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(true);
 		((CHypoEvnt *)_dest)->doLevelAnalysis();
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
@@ -5923,7 +5922,7 @@ bool CEvents::copyHypoEventTo(CHypoEvnt *_source, CEvnt *_dest)
 		((CHypoEvnt *)_dest)->setHypoType(destType);
 		((CHypoEvnt *)_dest)->setSpO2DropPartner(.0f, false);
 		_dest->setEventType(evntTypeHypoCentral);
-		_dest->setDetectionSource(manualDetection);
+		_dest->setDetectionSourceManOrAuto(manualDetection);
 		_dest->setHasLevelDetection(false);
 		_dest->setEventFlags(_source->getEventFlags() | EVNT_DEF_MANUAL | EVNT_DEF_MANUAL_TYPE);
 		ret = true;
@@ -16723,12 +16722,12 @@ void CEvnt::setInAwakeWindow(bool _on)
 	}
 }
 
-int CEvnt::getDetectionSource(void)
+int CEvnt::getDetectionSourceManOrAuto(void)
 {
 	return detectionSource;
 }
 
-void CEvnt::setDetectionSource(int _detSource)
+void CEvnt::setDetectionSourceManOrAuto(int _detSource)
 {
 	detectionSource = _detSource;
 }
