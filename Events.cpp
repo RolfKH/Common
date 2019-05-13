@@ -15363,23 +15363,42 @@ Description: Find findMixCentralObstr Apnea
 */
 bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> *_helpVP)  /*HERE 28*/
 {
-	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
-	vector <FLOAT> *flow = catheterData->getFlowVector();
-	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
-	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
-	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
-	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
-
-	vector <FLOAT> *flowBaseline =	catheterData->getFlowBaselineVector();
-	vector <FLOAT> *poesBaseline =	catheterData->getPOESBaselineVector();
-	vector <FLOAT> *pphBaseline =	catheterData->getPPHBaselineVector();
+	vector <FLOAT> *vpoesOrAbdom			= NULL; 
+	vector <FLOAT> *poesOrAbdomTime			= NULL; 
+	vector <FLOAT> *vpphOrChest				= NULL; 
+	vector <FLOAT> *flow					= NULL; 
+	vector <FLOAT> *flowTime				= NULL; 
+	vector <FLOAT> *pphOrChestTime			= NULL; 
+	vector <FLOAT> *vpGrad					= NULL; 
+	vector <FLOAT> *tpGrad					= NULL; 
+	vector <FLOAT> *flowBaseline			= NULL;
+	vector <FLOAT> * poesOrAbdomBaseline	= NULL;
+	vector <FLOAT>* pphOrChestBaseline		= NULL;
 
 	if (flags & EVENTS_FLAG_CATHETER_BASED) {
-
+		vpoesOrAbdom		= catheterData->getPOESEnvVector();
+		poesOrAbdomTime		= catheterData->getPOESEnvVectorTime();
+		vpphOrChest			= catheterData->getPPHEnvVector();
+		flow				= catheterData->getFlowVector();
+		flowTime			= catheterData->getFlowVectorTime();
+		pphOrChestTime		= catheterData->getPPHEnvVectorTime();
+		vpGrad				= catheterData->getPgradientVector();
+		tpGrad				= catheterData->getPgradientVectorTime();
+		flowBaseline		= catheterData->getFlowBaselineVector();
+		poesOrAbdomBaseline = catheterData->getPOESBaselineVector();
+		pphOrChestBaseline	= catheterData->getPPHBaselineVector();
 	}
 	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
+		vpoesOrAbdom		= respData->getAbdomEnvVector(); 
+		poesOrAbdomTime		= respData->getAbdomEnvVectorTime(); 
+		vpphOrChest			= respData->getCannulaEnvVector();
+		flow				= respData->getCannulaEnvVector();
+		flowTime			= respData->getCannulaEnvVectorTime();
+		pphOrChestTime		= respData->getChestEnvVectorTime();
+	
+		flowBaseline		= respData->getCannulaEnvBaseline();
+		poesOrAbdomBaseline	= respData->getAbdomEnvBaseline();
+		pphOrChestBaseline	= respData->getChestEnvBaseline();	
 	}
 	else return false;
 
@@ -15417,8 +15436,8 @@ bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsi
 					CCentralEvnt *evC = new CCentralEvnt(from, to, startRecordingClockTime, bp);
 					gradientDataToEvent((CEvnt *)evC, vpGrad, tpGrad, from, to);
 					flowDataToEvent((CEvnt *)evC, flow, flowTime, from, to);
-					poesEnvDataToEvent((CEvnt *)evC, vpoes, poesTime, from, to);
-					pphEnvDataToEvent((CEvnt *)evC, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *)evC, vpoesOrAbdom, poesOrAbdomTime, from, to);
+					pphEnvDataToEvent((CEvnt *)evC, vpphOrChest, pphOrChestTime, from, to);
 					centralEventArray.Add(evC);
 				}
 				usIt += countNoFlow;
@@ -15435,8 +15454,8 @@ bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsi
 					CMixedEvnt *evM = new CMixedEvnt(from, to, startRecordingClockTime, bp);
 					gradientDataToEvent((CEvnt *)evM, vpGrad, tpGrad, frompgrad, to); // Level analysis on obstructive part only!
 					flowDataToEvent((CEvnt *)evM, flow, flowTime, from, to);
-					poesEnvDataToEvent((CEvnt *)evM, vpoes, poesTime, from, to);
-					pphEnvDataToEvent((CEvnt *)evM, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *)evM, vpoesOrAbdom, poesOrAbdomTime, from, to);
+					pphEnvDataToEvent((CEvnt*)evM, vpphOrChest, pphOrChestTime, from, to);
 					evM->doLevelAnalysis();
 					mixedEventArray.Add(evM);
 				}
@@ -15454,8 +15473,8 @@ bool CEvents::findMixCentralObstrApnea(vector <FLOAT> *_helpVTimeP, vector <unsi
 
 					gradientDataToEvent((CEvnt *)evO, vpGrad, tpGrad, from, to);
 					flowDataToEvent((CEvnt *)evO, flow, flowTime, from, to);
-					poesEnvDataToEvent((CEvnt *)evO, vpoes, poesTime, from, to);
-					pphEnvDataToEvent((CEvnt *)evO, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *)evO, vpoesOrAbdom, poesOrAbdomTime, from, to);
+					pphEnvDataToEvent((CEvnt*)evO, vpphOrChest, pphOrChestTime, from, to);
 					evO->doLevelAnalysis();
 					obstrEventArray.Add(evO);
 				}
@@ -15474,19 +15493,32 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 	else if (spO2DropLimit4 == _spO2DropLimit) hP = &hypoEventArrayDesat4;
 	else return false;
 
-	vector <FLOAT> *flow = catheterData->getFlowVector();
-	vector <FLOAT> *flowTime = catheterData->getFlowVectorTime();
-	vector <FLOAT> *vpGrad = catheterData->getPgradientVector();
-	vector <FLOAT> *tpGrad = catheterData->getPgradientVectorTime();
-	vector <FLOAT> *vpoes = catheterData->getPOESEnvVector();
-	vector <FLOAT> *poesTime = catheterData->getPOESEnvVectorTime();
-	vector <FLOAT> *vpph = catheterData->getPPHEnvVector();
-	vector <FLOAT> *pphTime = catheterData->getPPHEnvVectorTime();
+	vector <FLOAT> *flow			= NULL;
+	vector <FLOAT> *flowTime		= NULL;
+	vector <FLOAT> *vpGrad			= NULL;
+	vector <FLOAT> *tpGrad			= NULL;
+	vector <FLOAT> *vpoesOrAbdom	= NULL;
+	vector <FLOAT> *poesOrAbdomTime	= NULL;
+	vector <FLOAT> *vpphOrChest		= NULL;
+	vector <FLOAT> *pphOrChestTime	= NULL;
 
 	if (flags & EVENTS_FLAG_CATHETER_BASED) {
-
+		flow			= catheterData->getFlowVector();
+		flowTime		= catheterData->getFlowVectorTime();
+		vpGrad			= catheterData->getPgradientVector();
+		tpGrad			= catheterData->getPgradientVectorTime();
+		vpoesOrAbdom	= catheterData->getPOESEnvVector();
+		poesOrAbdomTime = catheterData->getPOESEnvVectorTime();
+		vpphOrChest		= catheterData->getPPHEnvVector();
+		pphOrChestTime	= catheterData->getPPHEnvVectorTime();
 	}
 	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
+		flow			= respData->getCannulaEnvVector();
+		flowTime		= respData->getCannulaEnvVectorTime();
+		vpoesOrAbdom	= respData->getAbdomEnvVector();
+		poesOrAbdomTime = respData->getAbdomEnvVectorTime();
+		vpphOrChest		= respData->getChestEnvVector();
+		pphOrChestTime	= respData->getChestEnvVectorTime();
 	}
 	else return false;
 
@@ -15538,8 +15570,8 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 	
 					gradientDataToEvent((CEvnt *) evH,vpGrad,tpGrad,from,to);
 					flowDataToEvent((CEvnt *) evH,flow,flowTime,from,to);
-					poesEnvDataToEvent((CEvnt *) evH,vpoes,poesTime,from,to);
-					pphEnvDataToEvent((CEvnt *)evH, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *) evH,	vpoesOrAbdom,poesOrAbdomTime,from,to);
+					pphEnvDataToEvent((CEvnt *)evH,		vpphOrChest, pphOrChestTime, from, to);
 					int type = evH->findHypoType();
 					evH->doLevelAnalysis();
 					hP->Add(evH);
@@ -15592,8 +15624,8 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 	
 					gradientDataToEvent((CEvnt *)evH, vpGrad, tpGrad, from, to);
 					flowDataToEvent((CEvnt *)evH, flow, flowTime, from, to);
-					poesEnvDataToEvent((CEvnt *)evH, vpoes, poesTime, from, to);
-					pphEnvDataToEvent((CEvnt *)evH, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *)evH, vpoesOrAbdom, poesOrAbdomTime, from, to);
+					pphEnvDataToEvent((CEvnt*)evH, vpphOrChest, pphOrChestTime, from, to);
 					int type = evH->findHypoType();
 					evH->doLevelAnalysis();
 					hP->Add(evH);
@@ -15645,8 +15677,8 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 
 					gradientDataToEvent((CEvnt *)evH, vpGrad, tpGrad, from, to);
 					flowDataToEvent((CEvnt *)evH, flow, flowTime, from, to);
-					poesEnvDataToEvent((CEvnt *)evH, vpoes, poesTime, from, to);
-					pphEnvDataToEvent((CEvnt *)evH, vpph, pphTime, from, to);
+					poesEnvDataToEvent((CEvnt *)evH, vpoesOrAbdom, poesOrAbdomTime, from, to);
+					pphEnvDataToEvent((CEvnt*)evH, vpphOrChest, pphOrChestTime, from, to);
 					int type = evH->findHypoType();
 					evH->doLevelAnalysis();
 					hP->Add(evH);
@@ -16041,6 +16073,9 @@ int CEvents::getLevel(float _gradient)
 	else return levelTypeMulti;
 }
 
+/*
+Respiratory effort - only for catheter
+*/
 void CEvents::POESEnvBinning(void)		/*HERE 30*/
 {
 	if (1 >= catheterData->getSize()) return;
@@ -16049,14 +16084,7 @@ void CEvents::POESEnvBinning(void)		/*HERE 30*/
 	vector <FLOAT> *_vt =		catheterData->getPOESEnvVectorTime();
 	vector <FLOAT> *_grad =		catheterData->getPgradientVector();
 	vector <FLOAT> *_gradt =	catheterData->getPgradientVectorTime();
-
-	if (flags & EVENTS_FLAG_CATHETER_BASED) {
-
-	}
-	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
-	}
-	else return;
-
+	
 	if (0 == _vt->size()) return;
 
 	vector <FLOAT>::iterator vIt = _v->begin();
@@ -16115,15 +16143,11 @@ void CEvents::POESEnvBinning(void)		/*HERE 30*/
 	}
 }
 
+/*
+Only for catheter
+*/
 void CEvents::POESEnvBinningForSnoring(void)  /*HERE 31*/
 {
-	if (flags & EVENTS_FLAG_CATHETER_BASED) {
-
-	}
-	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
-	}
-	else return;
-
 	if (1 >= catheterData->getSize()) return;
 
 	vector <FLOAT> *_v = catheterData->getPOESEnvVector();
@@ -16193,15 +16217,11 @@ void CEvents::POESEnvBinningForSnoring(void)  /*HERE 31*/
 	}
 }
 
+/*
+Only for catheter
+*/
 void CEvents::PPHEnvBinning(void)  /*HERE 32*/
 {
-	if (flags & EVENTS_FLAG_CATHETER_BASED) {
-
-	}
-	else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
-	}
-	else return;
-
 	if (1 >= catheterData->getSize()) return;
 
 	vector <FLOAT> *_v = catheterData->getPPHEnvVector();
@@ -16267,6 +16287,9 @@ void CEvents::PPHEnvBinning(void)  /*HERE 32*/
 	}
 }
 
+/*
+Only for catheter
+*/
 void CEvents::PPHEnvBinningForSnoring(void)  /*HERE 33*/
 {
 	if (!catheterData) return; 
