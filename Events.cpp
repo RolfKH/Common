@@ -7910,6 +7910,8 @@ Description: Clears all events. if _clearStack is true, also the do and undo sta
 */
 void CEvents::reset(bool _clearStateVector /* = true */)
 {
+	analysisSWVersion = swVersion;
+
 	for (int i = 0; i < numSpO2DropLimits; i++) {
 		for (int j = 0; j < numHypopneaDropLimits; j++) {
 			rdiResult[j][i] = .0f;
@@ -8301,11 +8303,6 @@ void CEvents::setData(	CBatteryDataSet		*_battData		,
 	startRecordingClockTime		= _startRecording	;
 	respData					= _respData			;
 	mMarkerData					= _manMarkerData	;
-
-	if ((respData->getSize() > 0) && (0 == catheterData->getSize()))
-		flags |= EVENTS_FLAG_BELTS_AND_CANNULA_BASED;
-	else if ((0 == respData->getSize()) && (catheterData->getSize() > 0))
-		flags |= EVENTS_FLAG_CATHETER_BASED;
 }
 
 bool CEvents::getIsVisualEventEditingActive(void)
@@ -10767,7 +10764,12 @@ bool CEvents::doAnalyse(bool _findStartAndStop /* = true */)
 	CSpiroWaitCursor curW;
 
 	reset();	// Everything is reset
+
 	detectionCriteria = editedDetectionCriteria;
+	if ((respData->getSize() > 0) && (0 == catheterData->getSize()))
+		flags |= EVENTS_FLAG_BELTS_AND_CANNULA_BASED;
+	else if ((0 == respData->getSize()) && (catheterData->getSize() > 0))
+		flags |= EVENTS_FLAG_CATHETER_BASED;
 
 	switch (detectionCriteria.spO2DropLimit) {
 	case spO2DropLimit3:
