@@ -12154,20 +12154,23 @@ void CEvents::doSnoringAnalysis(void)
 										amData->getAm4Vector(),
 										amData->getAmSumVector(),
 										amData->getTimeaxisVector(),
-										startTime,endTime);							/*HERE 16*/
+										startTime,endTime);						
 
 				if (flags & EVENTS_FLAG_CATHETER_BASED) {
 					poesEnvDataToEvent((CEvnt*)ev, catheterData->getPOESEnvVector(), catheterData->getPOESEnvVectorTime(), startTime, endTime);
 					pphEnvDataToEvent((CEvnt*)ev, catheterData->getPPHEnvVector(), catheterData->getPPHEnvVectorTime(), startTime, endTime);
+					ev->doLevelAnalysis();
+					ev->sumUpTimeAtLevels();
 				}
 				else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
 					poesEnvDataToEvent((CEvnt*)ev, respData->getAbdomEnvVector(), respData->getAbdomEnvVectorTime(), startTime, endTime);
-					pphEnvDataToEvent((CEvnt*)ev, respData->getChestEnvVector(), respData->getCannulaEnvVectorTime(), startTime, endTime);
+					pphEnvDataToEvent((CEvnt*)ev, respData->getChestEnvVector(), respData->getCannulaEnvVectorTime(), startTime, endTime); 
+					ev->doLevelAnalysis();
+					ev->sumUpTimeAtLevels();
 				}
 
 				ev->sumUpTimeInPositions();
-				if (flags & EVENTS_FLAG_CATHETER_BASED)
-								ev->sumUpTimeAtLevels();
+				ev->sumUpTimeAtLevels();
 				snoringEventArray.Add(ev);
 			}
 		}
@@ -12216,13 +12219,14 @@ void CEvents::doSnoringAnalysis(void)
 			poesEnvDataToEvent((CEvnt*)ev, catheterData->getPOESEnvVector(), catheterData->getPOESEnvVectorTime(), startTime, endTime);
 			pphEnvDataToEvent((CEvnt*)ev, catheterData->getPPHEnvVector(), catheterData->getPPHEnvVectorTime(), startTime, endTime);
 			ev->doLevelAnalysis();
-			ev->sumUpTimeAtLevels();
 		}
 		else if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) {
 			poesEnvDataToEvent((CEvnt*)ev, respData->getAbdomEnvVector(), respData->getAbdomEnvVectorTime(), startTime, endTime);
 			pphEnvDataToEvent((CEvnt*)ev,  respData->getChestEnvVector(),  respData->getChestEnvVectorTime(), startTime, endTime);
+			ev->doLevelAnalysis();  // Will set levek to undefined
 		}
 		ev->sumUpTimeInPositions();
+		ev->sumUpTimeAtLevels();
 		snoringEventArray.Add(ev);
 	}
 	fillSnoringVector();
@@ -16533,7 +16537,7 @@ bool CEvents::generateVectorsForAwakeDet(void)
 
 /*
 Description: Goes over event array and sets a mark in the dV vector with dT as corresponding time vector
-As the pitch of the dT vector is long (typically 10 sec), two consecuitve events may be closer than 10 sec, hence
+As the pitch of the dT vector is long (typically 10 sec), two consecutive events may be closer than 10 sec, hence
 one count will be lost.
 */
 void CEvents::fillEventOnVector(vector <bool> *_dV, vector <FLOAT> *_dT, CArray <CEvnt *, CEvnt *> *_eA)
