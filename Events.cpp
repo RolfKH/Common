@@ -15573,9 +15573,14 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 					gradientDataToEvent((CEvnt *) evH,vpGrad,tpGrad,from,to);
 					flowDataToEvent((CEvnt *) evH,flow,flowTime,from,to);
 					poesEnvDataToEvent((CEvnt *) evH,	vpoesOrAbdom,poesOrAbdomTime,from,to);
-					pphEnvDataToEvent((CEvnt *)evH,		vpphOrChest, pphOrChestTime, from, to);
-					int type = evH->findHypoType();
-					evH->doLevelAnalysis();
+					pphEnvDataToEvent((CEvnt *)evH,		vpphOrChest, pphOrChestTime, from, to); 
+					
+					if (flags & EVENTS_FLAG_CATHETER_BASED) {
+						int type = evH->findHypoType();
+						evH->doLevelAnalysis();
+					}
+					else evH->setHypoType(hypoTypeObstr);
+
 					hP->Add(evH);
 				}
 			}
@@ -15628,8 +15633,13 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 					flowDataToEvent((CEvnt *)evH, flow, flowTime, from, to);
 					poesEnvDataToEvent((CEvnt *)evH, vpoesOrAbdom, poesOrAbdomTime, from, to);
 					pphEnvDataToEvent((CEvnt*)evH, vpphOrChest, pphOrChestTime, from, to);
-					int type = evH->findHypoType();
-					evH->doLevelAnalysis();
+
+					if (flags & EVENTS_FLAG_CATHETER_BASED) {
+						int type = evH->findHypoType();
+						evH->doLevelAnalysis();
+					}
+					else evH->setHypoType(hypoTypeObstr);
+
 					hP->Add(evH);
 				}
 			}
@@ -15681,8 +15691,13 @@ bool CEvents::findHypopnea(vector <FLOAT> *_helpVTimeP, vector <unsigned short> 
 					flowDataToEvent((CEvnt *)evH, flow, flowTime, from, to);
 					poesEnvDataToEvent((CEvnt *)evH, vpoesOrAbdom, poesOrAbdomTime, from, to);
 					pphEnvDataToEvent((CEvnt*)evH, vpphOrChest, pphOrChestTime, from, to);
-					int type = evH->findHypoType();
-					evH->doLevelAnalysis();
+
+					if (flags & EVENTS_FLAG_CATHETER_BASED) {
+						int type = evH->findHypoType();
+						evH->doLevelAnalysis();
+					}
+					else evH->setHypoType(hypoTypeObstr);
+
 					hP->Add(evH);
 				}
 			}
