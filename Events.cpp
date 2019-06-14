@@ -2977,6 +2977,7 @@ CString CEvents::getEventsList(float _timeSec)
 		s0 += _T("\n");
 		lines++;
 	}
+	TRACE(_T("Events list flag = %d, tlineVectorsize = %d, %s\n"),flag, (int)eventTimelineVector.size(), s0);
 	while (lines < 3) {
 		s0 += _T("\n");
 		lines++;
@@ -10908,6 +10909,13 @@ bool CEvents::doAnalyse(bool _findStartAndStop /* = true */)
 	eventDefinition = EVNT_DEF_AUTO;	// This analysis has been by computer
 	
 	return true;
+}
+
+bool CEvents::getAreEventsRespBeltBased(void)
+{
+	if (flags & EVENTS_FLAG_BELTS_AND_CANNULA_BASED) return true;
+
+	return false;
 }
 
 /*

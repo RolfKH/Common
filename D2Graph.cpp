@@ -5440,9 +5440,14 @@ CEvnt *CGraphButton::findEvent(int _what, FLOAT _atTime, int *_closestEdge)
 /*
 Description: Based on the flag return from getIsOver(), returns the event description
 */
-CString CGraphButton::getEventDescription(int _what)
+CString CGraphButton::getEventLevelDescription(int _what)
 {
 	CString s, sl, ot, sll, slll;
+
+	if (!eventsP) return s;
+	
+	if (eventsP->getAreEventsRespBeltBased()) return s;
+
 	if (_what & OVER_EVNT_CENTRAL) {		// Nothing to add
 		return s;
 	}
@@ -5579,7 +5584,7 @@ void CGraphButton::RelayEventAndSetCursor(UINT message, WPARAM wParam, LPARAM lP
 			nums = st.LoadString(getEventName(what));
 
 			//---Heading
-			s += getEventDescription(what);
+			s += getEventLevelDescription(what);
 			s += _T("\n");
 			CString fromS, toS,lenS;
 			nums = lenS.LoadString(IDS_LENGTH2S);
@@ -5637,6 +5642,7 @@ void CGraphButton::RelayEventAndSetCursor(UINT message, WPARAM wParam, LPARAM lP
 			m_ttip.SetTitle(TTI_INFO, st);
 			m_ttip.UpdateTipText(s, this);
 			m_ttip.RelayEvent(&msg);
+			TRACE(_T("Over event---------------\n"));
 			return;
 		}
 		else currentCursor = CURS_ARROW;
@@ -6436,8 +6442,6 @@ void CGraphButton::OnMouseMove(UINT nFlags, CPoint point)
 	MSG msg;
 	while (PeekMessage(&msg, this->m_hWnd, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE));
 	
-	TRACE(_T("Graph MM point x %d\n"), point.x);
-
 	bool left = (nFlags & MK_LBUTTON) > 0;
 	bool right = (nFlags & MK_RBUTTON) > 0;
 	bool middle = (nFlags & MK_MBUTTON) > 0;
@@ -7888,9 +7892,16 @@ void CRGLGraphEventMarkers::makeSourceGeometry(bool _reload)
 	}
 	else {
 		if (withLevel) {
-			ssP1 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeUpper);
-			ssP2 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeMulti);
-			ssP3 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeLower);
+			if (!eventsP->getAreEventsRespBeltBased()) {
+				ssP1 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeUpper);
+				ssP2 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeMulti);
+				ssP3 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeLower);
+			}
+			else {
+				ssP1 = eventsP->getBeginsEnds(eventEnum, bgLevelTypeUndef);
+				ssP2 = NULL;
+				ssP3 = NULL;
+			}
 		}
 		else {
 			ssP1 = eventsP->getBeginsEnds(eventEnum);
@@ -7987,7 +7998,7 @@ void CRGLGraphEventMarkers::render(void)
 		if (!dGeometry) makeSourceGeometry();
 		makeTransformedGeometry();
 	}
-
+	
 	D2D1_RECT_F plotRectScaled = myTile->getPlotRectScaled();
 
 	D2D1_POINT_2F p0 = D2D1::Point2F(plotRectScaled.left, plotRectScaled.top);

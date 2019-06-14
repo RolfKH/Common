@@ -1334,6 +1334,7 @@ public:
 	bool getIsVisualEventEditingActive(void);
 	void setVisualEventEditingActive(bool _on);
 	bool doAnalyse(bool _findStartAndStop = true);
+	bool getAreEventsRespBeltBased(void);
 	bool postVisualEditAnalysis(int _step);
 	bool saveResults(CString _dataPath,CString fileID);
 	bool readResults(CString _dataPath,CString _fileID);

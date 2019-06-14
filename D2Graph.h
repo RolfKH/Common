@@ -122,7 +122,7 @@ const int maxYTxtLength = 6;
 const int PEN_UP = 1;
 const int PEN_DOWN = 2;
 
-const float eventTranspLevel = 1.0f; // .4f;		// Transparency of the event fill-ins
+const float eventTranspLevel = .4f;//  1.0f; // .4f;		// Transparency of the event fill-ins
 
 const float sparseDensePlotLimit = 1800.0f;			// Longer than 30 minutes, draw sparse (25% of points)
 const int defaultSparseStep = 4;
@@ -840,7 +840,7 @@ protected:
 	void RelayEventAndSetCursorDuringVisualEventEditing(UINT message, WPARAM wParam, LPARAM lParam, CString _amplInfo);
 	int getEventName(int _what);
 	int getHypoTypeName(int _what);
-	CString getEventDescription(int _what);
+	CString getEventLevelDescription(int _what);
 
 	//---2 sec intrerval
 	//ID2D1PathGeometry *dGeometry2sec;
