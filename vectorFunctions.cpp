@@ -6941,7 +6941,7 @@ void CRespBeltDataSet::dataSetIsCompleteFromAPN(void)
 void CRespBeltDataSet::dataSetIsCompleteFromTorso(void)
 {
 	if (!noRespSensorFilter) {
-		CBPFilter bpF;
+		CBPCheb1t012FilterOrder6 bpF; // *INN* CBPFilter bpF;
 		bpF.filter(&beltTime,&abdom,&chest);
 		bpF.filter(&cannulaTime,&cannula);
 	}
@@ -7649,4 +7649,16 @@ void CManualMarkerSet::clear()
 {
 	mMarkerTimes.clear();
 	mMarkerStartStopVector.clear();
+}
+
+/////////////////////////////////////////////////////
+
+CBPCheb1t012FilterOrder6::CBPCheb1t012FilterOrder6()
+{
+	taps = NtapCheb;
+	for (int i = 0; i < taps; i++) coef.push_back(Cheb_FIRCoefOrder6[i]);
+}
+
+CBPCheb1t012FilterOrder6::~CBPCheb1t012FilterOrder6()
+{
 }
